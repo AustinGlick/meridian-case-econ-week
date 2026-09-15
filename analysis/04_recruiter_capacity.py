@@ -26,23 +26,24 @@ def main() -> None:
     cm["review_share"] = cm["applications_reviewed"] / cm["applications_received"]
 
     metrics = [
-        ("apps_per_opening", "Applications received per opening"),
-        ("review_share", "Share of applications reviewed by a recruiter"),
-        ("recruiter_minutes_per_application", "Recruiter minutes per application received"),
-        ("days_to_fill", "Days from requisition open to accepted offer"),
+        ("apps_per_opening", "Applications received per opening", "Applications per opening (count)"),
+        ("review_share", "Share of applications reviewed by a recruiter", "Share reviewed (0-1)"),
+        ("recruiter_minutes_per_application", "Recruiter minutes per application received", "Minutes per application"),
+        ("days_to_fill", "Days from requisition open to accepted offer", "Days to fill"),
     ]
-    fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+    fig, axes = plt.subplots(2, 2, figsize=(11, 8))
     yearly = cm.groupby(["year", "ats"])[[m[0] for m in metrics]].mean().reset_index()
-    for ax, (col, label) in zip(axes.flat, metrics):
+    for ax, (col, label, unit) in zip(axes.flat, metrics):
         for ats in ["legacy", "new"]:
             sub = yearly[yearly["ats"] == ats].sort_values("year")
             ax.plot(sub["year"], sub[col], marker="o", label=f"{ats.capitalize()} ATS", color=PALETTE[ats], linewidth=2)
         ax.set_title(label)
+        ax.set_ylabel(unit)
         ax.set_xlabel("Calendar year")
     axes[0, 0].legend()
-    fig.suptitle("E10. Recruiter capacity has not kept pace with application volume: more "
-                "applications per opening, less time per application, longer to fill")
-    fig.tight_layout(rect=[0, 0, 1, 0.95])
+    fig.suptitle("E10. Recruiter capacity has not kept pace with application volume:\n"
+                "more applications per opening, less time per application, longer to fill")
+    fig.tight_layout(rect=[0, 0, 1, 0.94])
     save_fig(fig, "E10", "recruiter_capacity_panel",
             sample_line=f"{len(cm):,} center-months, 40 centers, 2021-01 to 2025-12, yearly means.",
             source="analysis/04_recruiter_capacity.py")

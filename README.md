@@ -38,6 +38,16 @@ python -m analysis.08_cost_worksheet
 Script 07 runs a wild-cluster bootstrap and takes about five minutes. Each script overwrites its
 own exhibits and its own block in `outputs/RESULTS.md`.
 
+## Building the PDF
+
+`python report/build_report.py` from the repo root (needs `pip install typst pypdf`; no pandoc,
+LaTeX or system fonts). It converts the Markdown narrative in `report/draft.md` to Typst, appends
+every exhibit from `outputs/` in the order listed under "Appendix order" in
+`report/narrative_outline.md`, and writes `report/Meridian_Round1.pdf` (committed) plus the Typst
+source in `build/report.typ`. The build fails if the narrative exceeds four pages or if an exhibit
+id in the outline list has no PNG or table on disk; it warns about exhibits on disk that the
+outline does not list.
+
 ## Rules everyone should know
 
 - Numbers in the report come from `outputs/RESULTS.md`, never from memory.

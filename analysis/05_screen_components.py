@@ -75,8 +75,8 @@ def main() -> None:
     ax.set_xlabel("Change in six-month retention probability per unit of the input (95% CI)")
     ax.set_title("E11. The essay is the only screen input whose predictive power collapses in the "
                  "AI era;\nlicense, referral, resume and interview all still predict retention",
-                 fontsize=11)
-    ax.legend(title="Regime (ATS at application x era)", fontsize=8, loc="lower right")
+                 fontsize=12.5)
+    ax.legend(title="Regime (ATS at application x era)", fontsize=9.5, loc="upper right")
     save_fig(fig, "E11", "screen_component_coefficients_by_regime",
             sample_line=f"{len(h):,} hires with an observed six-month outcome, split into four cells "
                         f"(legacy/new ATS x application before/after {AI_ERA_CUTOFF}); "

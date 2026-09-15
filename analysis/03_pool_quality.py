@@ -79,17 +79,21 @@ def main() -> None:
     ax.set_xticklabels([xl[i] for i in tick_idx], rotation=45, ha="right")
     cutoff_x = list(g[g["ats_at_application"] == "legacy"].sort_values("application_month")
                     ["application_month"]).index(AI_ERA_CUTOFF) if AI_ERA_CUTOFF in list(xl) else None
+    lo_y, hi_y = ax.get_ylim()
+    ax.set_ylim(lo_y, hi_y + 0.9)          # head-room for the reference-line labels; no data change
     if cutoff_x is not None:
         ax.axvline(cutoff_x, color="grey", linestyle="--", linewidth=1)
-        ax.text(cutoff_x, ax.get_ylim()[1], f" AI-era cutoff ({AI_ERA_CUTOFF})", fontsize=8, va="top")
+        ax.text(cutoff_x, ax.get_ylim()[1], f" AI-era cutoff\n ({AI_ERA_CUTOFF})", fontsize=9.5, va="top")
+    # wave markers: label at the top, to the LEFT of the line, so they sit in the empty band above
+    # the series and clear the AI-cutoff label (which sits to the right of its line)
     for wave, m in MIG_WAVES.items():
         if m in xl:
             ax.axvline(xl.index(m), color="grey", linestyle=":", linewidth=0.8)
-            ax.text(xl.index(m), ax.get_ylim()[0], f" {wave} begins", fontsize=7, va="bottom",
-                    rotation=90, color="grey")
+            ax.text(xl.index(m) - 0.3, ax.get_ylim()[1], f"{wave} begins", fontsize=8.5, va="top",
+                    ha="right", rotation=90, color="grey")
     ax.set_xlabel("Application month")
     ax.set_ylabel("Mean situational-section (essay) score, 0-30")
-    ax.set_title("E06. Essay scores climb on the new ATS from 2023; legacy scores drift up only slightly")
+    ax.set_title("E06. Essay scores climb on the new ATS from 2023;\nlegacy scores drift up only slightly")
     ax.legend()
     save_fig(fig, "E06", "essay_score_by_ats_monthly",
             sample_line=f"{len(apps):,} reviewed applications, 2021-01 to 2025-12, 40 centers. "
@@ -109,10 +113,11 @@ def main() -> None:
             ax.hist(vals, bins=np.arange(0, 65, 2), density=True, alpha=0.5, label=era, color=color)
         ax.set_title(f"{ats.capitalize()} ATS")
         ax.set_xlabel("Minutes spent in the situational section")
-        ax.legend()
+        ax.legend(title="Application era")
     axes[0].set_ylabel("Share of applications (density)")
     fig.suptitle(f"E07. Time spent on the essay collapses on the new ATS after {AI_ERA_CUTOFF[:4]}; "
                  f"legacy shifts only slightly")
+    fig.tight_layout(rect=[0, 0, 1, 0.94])
     save_fig(fig, "E07", "essay_minutes_distribution",
             sample_line=f"{len(apps):,} reviewed applications, split by ATS and by application era.",
             source="analysis/03_pool_quality.py")
@@ -123,17 +128,24 @@ def main() -> None:
                "prior_claims_years", "referral", "currently_employed"]
     yearly = apps.assign(year=apps["application_month"].str[:4]).groupby(
         ["year", "ats_at_application"])[obj_cols].mean().reset_index()
-    fig, axes = plt.subplots(2, 3, figsize=(13, 7))
+    obj_labels = {"resume_score": ("Resume score", "Mean recruiter resume rating (SD units)"),
+                  "has_adjuster_license": ("Adjuster license", "Share holding a license (0-1)"),
+                  "prior_claims_experience": ("Prior claims experience", "Share with any claims work (0-1)"),
+                  "prior_claims_years": ("Years of claims experience", "Mean years (0 if none)"),
+                  "referral": ("Employee referral", "Share referred (0-1)"),
+                  "currently_employed": ("Currently employed", "Share employed at application (0-1)")}
+    fig, axes = plt.subplots(2, 3, figsize=(11, 7))
     for ax, col in zip(axes.flat, obj_cols):
         for ats in ["legacy", "new"]:
             sub = yearly[yearly["ats_at_application"] == ats].sort_values("year")
             ax.plot(sub["year"], sub[col], marker="o", label=f"{ats.capitalize()} ATS", color=PALETTE[ats], linewidth=2)
-        ax.set_title(col)
+        ax.set_title(obj_labels[col][0])
+        ax.set_ylabel(obj_labels[col][1], fontsize=10)
         ax.set_xlabel("Application year")
-    axes[0, 0].legend(fontsize=8)
-    fig.suptitle("E08. Objective applicant attributes are flat over time -- the pool did not "
-                "objectively improve while essay scores rose")
-    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    axes[0, 0].legend(fontsize=9.5)
+    fig.suptitle("E08. Objective applicant attributes are flat over time --\n"
+                "the pool did not objectively improve while essay scores rose")
+    fig.tight_layout(rect=[0, 0, 1, 0.93])
     save_fig(fig, "E08", "objective_attributes_over_time",
             sample_line=f"{len(apps):,} reviewed applications, yearly means by ATS at application.",
             source="analysis/03_pool_quality.py")
@@ -163,7 +175,7 @@ def main() -> None:
         ax.errorbar(sub["year"], sub["mean"], yerr=1.96 * sub["se"], marker="o", capsize=3,
                    label=f"{ats.capitalize()} ATS at application", color=PALETTE[ats], linewidth=2)
     ax.set_xlabel("Placement year")
-    ax.set_ylabel("Six-month-equivalent reopen rate, flex placements (%)")
+    ax.set_ylabel("Six-month-equivalent reopen rate,\nflex placements (%)")
     ax.set_title("E09. Flex-placement quality (unselected on the essay) is roughly flat by ATS")
     ax.legend()
     save_fig(fig, "E09", "flex_reopen_over_time",

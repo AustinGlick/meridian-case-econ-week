@@ -11,9 +11,16 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import matplotlib
 import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
+
+# Figures are 9-11 in wide and print at 6.5 in, i.e. at 60-70 % scale. These base sizes keep
+# tick labels, legends and titles at or above roughly 7 pt on the page.
+matplotlib.rcParams.update({"font.size": 12, "axes.titlesize": 12.5, "axes.labelsize": 12,
+                            "xtick.labelsize": 11, "ytick.labelsize": 11, "legend.fontsize": 10.5,
+                            "legend.title_fontsize": 11, "figure.titlesize": 13})
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "meridian-case-data"
@@ -321,14 +328,34 @@ def write_table(exhibit_id: str, table: pd.DataFrame, title: str, sample_line: s
     return TABLES / f"{stem}.md"
 
 
+PRINT_WIDTH_IN = 6.5                   # figures are placed at full text width on US letter
+NOTE_PT_AT_PRINT = 7.5                 # sample/source note size once the PNG is shrunk to print
+
+
 def save_fig(fig, exhibit_id: str, title: str, sample_line: str, source: str = "") -> Path:
-    """Stamps the sample statement and source note under the axes, then saves."""
+    """Stamps the sample statement and source note under the axes, then saves.
+
+    The note is placed just below the lowest axes decoration (tick labels, x-axis label,
+    outside legends) so it never collides with them, wrapped to the figure width, and sized
+    so it still reads at about NOTE_PT_AT_PRINT when the PNG is scaled to PRINT_WIDTH_IN."""
+    import textwrap
     EXHIBITS.mkdir(parents=True, exist_ok=True)
-    note = f"Sample: {sample_line}"
+    w_in = fig.get_figwidth()
+    fs = NOTE_PT_AT_PRINT * w_in / PRINT_WIDTH_IN
+    fig.canvas.draw()
+    rend = fig.canvas.get_renderer()
+    boxes = [a.get_tightbbox(rend) for a in fig.axes]
+    boxes = [b for b in boxes if b is not None]
+    x0 = min(b.x0 for b in boxes) / fig.bbox.width
+    x1 = max(b.x1 for b in boxes) / fig.bbox.width
+    y0 = min(b.y0 for b in boxes) / fig.bbox.height
+    usable_pt = (x1 - x0) * w_in * 72
+    ncols = max(40, int(usable_pt / (0.56 * fs)))   # DejaVu Sans averages ~0.56 em per char
+    lines = [f"Sample: {sample_line}"]
     if source:
-        note += f"   Source: {source}"
-    fig.text(0.01, 0.005, note, fontsize=7.5, ha="left", va="bottom", wrap=True)
-    fig.subplots_adjust(bottom=max(fig.subplotpars.bottom, 0.16))
+        lines.append(f"Source: {source}")
+    note = "\n".join(textwrap.fill(ln, ncols) for ln in lines)
+    fig.text(x0, y0 - 0.025, note, fontsize=fs, ha="left", va="top", linespacing=1.25)
     path = EXHIBITS / f"{exhibit_id}_{_slug(title)}.png"
     fig.savefig(path, dpi=200, bbox_inches="tight")
     return path
@@ -361,3 +388,140 @@ def _slug(s: str, n: int = 40) -> str:
     import re
     s = re.sub(r"[^a-z0-9]+", "_", s.lower()).strip("_")
     return s[:n].rstrip("_")
+
+
+# ---------------------------------------------------------------------------
+# Option (b) cohorts and the size-and-region matched comparison of the legacy centers.
+# Used by 07 (E15f) and 08 (E19 matched row) so the two scripts cannot drift.
+# ---------------------------------------------------------------------------
+OPTION_B_WINDOW = "2024-01"          # status quo and legacy proxy: hires STARTING at/after this
+MATCH_APPROACHES = ["band", "nn1", "nn2", "ps"]
+MATCH_HEADLINE = "nn2"               # the approach whose gap feeds the E19 "(b, matched)" row
+MATCH_LABELS = {"band": "same region, size_index within the legacy centers' min..max",
+                "nn1": "nearest neighbour, k=1, on size_index within region",
+                "nn2": "nearest neighbour, k=2, on size_index within region",
+                "ps": "propensity-score reweighting (logit on size_index + region, ATT weights)"}
+MATCH_OUTCOMES = {"retained_6mo": "six-month retention (share of hires)",
+                  "reopen_rate_6mo_pct": "reopen rate (percentage points)",
+                  "days_to_fill": "days to fill (days, center-month panel)"}
+
+
+def option_b_cohorts(h: pd.DataFrame, cm: pd.DataFrame, mig: pd.DataFrame) -> dict:
+    """The cohorts behind the status quo and option (b), defined once.
+      status_quo   : new-ATS-at-application hires starting OPTION_B_WINDOW or later
+      legacy_all   : legacy-at-application hires starting in the window (08's counterfactual A;
+                     includes pre-migration hires at 2024-rollout centers)
+      legacy_never : the subset at the seven never-migrated centers (the unit for matching)
+      cm_new / cm_legacy_* : the center-month rows for days to fill, same window"""
+    never = mig.loc[mig["migration_wave"] == "not migrated", "center_id"]
+    in_win = h["start_month"] >= OPTION_B_WINDOW
+    new = h["ats_at_application"] == "new"
+    return {"status_quo": h[new & in_win],
+            "legacy_all": h[(h["ats_at_application"] == "legacy") & in_win],
+            "legacy_never": h[h["center_id"].isin(never) & in_win],
+            "cm_new": cm[(cm["ats"] == "new") & (cm["month"] >= OPTION_B_WINDOW)],
+            "cm_legacy_all": cm[(cm["ats"] == "legacy") & (cm["month"] >= OPTION_B_WINDOW)],
+            "cm_legacy_never": cm[cm["center_id"].isin(never) & (cm["month"] >= OPTION_B_WINDOW)],
+            "never_centers": list(never)}
+
+
+def legacy_match_weights(mig: pd.DataFrame, approach: str, new_centers: list) -> pd.Series:
+    """Center-level weights for the comparison (new-ATS) centers under one matching approach.
+    Index = center_id of comparison centers with positive weight. Legacy centers always weight 1.
+      band : 1 for new-ATS centers in a legacy region whose size_index lies in [min, max] of the
+             seven legacy centers' size_index (no margin); 0 otherwise
+      nn1 / nn2 : each legacy center is matched, with replacement, to its k nearest new-ATS
+             centers on size_index within the SAME region; weight = number of times matched
+      ps   : logit P(legacy | size_index, region) on the centers in legacy regions; comparison
+             weight = p/(1-p) (average-treatment-on-the-treated weights)"""
+    m = mig.set_index("center_id")
+    leg = m[m["migration_wave"] == "not migrated"]
+    cand = m.loc[[c for c in new_centers if c in m.index]]
+    cand = cand[cand["region"].isin(leg["region"].unique())]
+    w = pd.Series(0.0, index=cand.index)
+    if approach == "band":
+        lo, hi = leg["size_index"].min(), leg["size_index"].max()
+        w[cand["size_index"].between(lo, hi)] = 1.0
+    elif approach in ("nn1", "nn2"):
+        k = int(approach[-1])
+        for _, row in leg.iterrows():
+            pool = cand[cand["region"] == row["region"]]
+            dist = (pool["size_index"] - row["size_index"]).abs().sort_values()
+            for c in dist.index[:k]:
+                w[c] += 1.0
+    elif approach == "ps":
+        import statsmodels.api as sm
+        both = pd.concat([leg.assign(legacy=1), cand.assign(legacy=0)])
+        X = pd.get_dummies(both[["size_index", "region"]], columns=["region"], drop_first=True,
+                           dtype=float)
+        X = sm.add_constant(X)
+        try:
+            fit = sm.Logit(both["legacy"], X).fit(disp=0, maxiter=200)
+            p = pd.Series(np.asarray(fit.predict(X)), index=both.index)
+            if not np.isfinite(fit.params).all() or p.max() > 0.999:
+                raise ValueError("separation")
+        except Exception:  # separation or non-convergence: ridge-penalised fit
+            fit = sm.Logit(both["legacy"], X).fit_regularized(alpha=1.0, L1_wt=0.0, disp=0)
+            p = pd.Series(np.asarray(fit.predict(X)), index=both.index)
+        w = (p / (1 - p)).loc[cand.index]
+    else:
+        raise ValueError(approach)
+    return w[w > 0]
+
+
+def _apply_center_weights(df: pd.DataFrame, w: pd.Series, legacy_flag: str = "legacy") -> pd.DataFrame:
+    """Row weights: legacy rows 1; comparison rows omega_c / n_c, rescaled so the comparison
+    group's weights average 1 (each comparison center enters with its center weight, spread
+    evenly over its rows)."""
+    df = df.copy()
+    comp = df[legacy_flag] == 0
+    n_c = df.loc[comp].groupby("center_id").size()
+    row_w = df.loc[comp, "center_id"].map(w / n_c)
+    df["w"] = 1.0
+    df.loc[comp, "w"] = row_w * (comp.sum() / row_w.sum())
+    return df
+
+
+def _gap_reg(df: pd.DataFrame, y: str, timecol: str, weighted: bool) -> dict:
+    """Legacy-minus-comparison gap from y ~ legacy + C(time), clustered by center. Center FE are
+    not identified for a between-center contrast, so the time FE is the only absorbed effect."""
+    res = fe_ols(df, y, ["legacy"], fe=[timecol], cluster="center_id",
+                 weights="w" if weighted else None)
+    ci = res.conf_int().loc["legacy"]
+    return {"gap": res.params["legacy"], "se": res.bse["legacy"], "ci_low": ci[0], "ci_high": ci[1],
+            "n": res.sample_n, "clusters": res.n_clusters}
+
+
+def matched_legacy_gaps(h: pd.DataFrame, cm: pd.DataFrame, mig: pd.DataFrame,
+                        approaches=MATCH_APPROACHES) -> pd.DataFrame:
+    """E15f: legacy-minus-new gaps in the option-(b) window, unmatched (all 33 new-ATS centers)
+    and matched (comparison centers restricted / reweighted on size and region). One row per
+    approach x outcome. Legacy side = the seven never-migrated centers in every row, so only the
+    comparison set changes between the unmatched and matched columns."""
+    co = option_b_cohorts(h, cm, mig)
+    new_centers = sorted(co["status_quo"]["center_id"].unique())
+    hires = pd.concat([co["legacy_never"].assign(legacy=1), co["status_quo"].assign(legacy=0)])
+    panel = pd.concat([co["cm_legacy_never"].assign(legacy=1), co["cm_new"].assign(legacy=0)])
+    rows = []
+    for ap in approaches:
+        w = legacy_match_weights(mig, ap, new_centers)
+        for y, lab in MATCH_OUTCOMES.items():
+            df, tcol = (panel, "month") if y == "days_to_fill" else (hires, "start_month")
+            un = _gap_reg(df.assign(w=1.0), y, tcol, weighted=False)
+            keep = df[(df["legacy"] == 1) | df["center_id"].isin(w.index)]
+            mt = _apply_center_weights(keep, w)
+            mres = _gap_reg(mt, y, tcol, weighted=(ap != "band"))
+            leg_side = df[df["legacy"] == 1]
+            comp_side = keep[keep["legacy"] == 0]
+            rows.append({"approach": ap, "approach_desc": MATCH_LABELS[ap], "outcome": y, "outcome_desc": lab,
+                         "unmatched_gap": un["gap"], "unmatched_ci_low": un["ci_low"], "unmatched_ci_high": un["ci_high"],
+                         "matched_gap": mres["gap"], "matched_ci_low": mres["ci_low"], "matched_ci_high": mres["ci_high"],
+                         "matched_se": mres["se"],
+                         "n_legacy_centers": leg_side["center_id"].nunique(), "n_legacy_rows": len(leg_side),
+                         "n_comparison_centers_unmatched": df.loc[df["legacy"] == 0, "center_id"].nunique(),
+                         "n_comparison_rows_unmatched": int((df["legacy"] == 0).sum()),
+                         "n_comparison_centers_matched": comp_side["center_id"].nunique(),
+                         "n_comparison_rows_matched": len(comp_side),
+                         "matched_clusters": mres["clusters"],
+                         "comparison_centers": ", ".join(f"{c}({w[c]:.2g})" for c in w.index)})
+    return pd.DataFrame(rows)

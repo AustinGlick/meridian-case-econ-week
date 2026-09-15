@@ -34,7 +34,8 @@ import numpy as np
 import pandas as pd
 
 from analysis.utils import (load_frames, hires_obs, fe_ols, did_table, write_table, save_fig,
-                            log_result, HIRE_CONTROLS, DID_TERMS_HIRES, PALETTE)
+                            log_result, HIRE_CONTROLS, DID_TERMS_HIRES, PALETTE,
+                            matched_legacy_gaps, MATCH_HEADLINE, MATCH_LABELS)
 
 
 # ---------------------------------------------------------------------------
@@ -210,12 +211,12 @@ def main() -> None:
               width=0.7, edgecolor="white", linewidth=1)
         bottom += haz_pct[col].values
     for i, tot in zip(haz_pct.index, bottom):
-        ax.text(i, tot + 0.4, f"{tot:.0f}%", ha="center", fontsize=8)
+        ax.text(i, tot + 0.4, f"{tot:.0f}%", ha="center", fontsize=9.5)
     ax.set_xlabel("Month on the job at separation (1 = first month)")
     ax.set_ylabel("Share of all separations within six months (%)")
     early = (sep["months_to_sep"] <= 2).mean(); late = (sep["months_to_sep"] >= 4).mean()
     ax.set_title(f"E18. Separations are front-loaded: {early:.0%} happen in months 1-2, "
-                 f"{late:.0%} in months 4-6", fontsize=11)
+                 f"{late:.0%} in months 4-6", fontsize=12.5)
     ax.legend(title="Reason")
     save_fig(fig, "E18", "separation_hazard_by_month",
             sample_line=f"{len(sep):,} hires who separated within six months, out of {len(h):,} "
@@ -247,6 +248,16 @@ def main() -> None:
                         dtf_new, r_override=r_sq + did_gain, reopen_override=reopen_leg)
     opt_b_hi = scenario(cf_legacy, "(b, high) Applicants bear it: legacy r, reopen AND legacy days to fill",
                         dtf_legacy)
+    # (b, matched): the legacy-minus-new retention and reopen gaps once the seven never-migrated
+    # centers are matched to new-ATS centers on size and region (E15f; shared helper in utils, so
+    # 07 and 08 cannot drift). Applied to the status-quo cohort at status-quo days to fill.
+    gaps_m = matched_legacy_gaps(h, cm, d["ats_migration"], approaches=[MATCH_HEADLINE]).set_index("outcome")
+    gap_r_m = gaps_m.loc["retained_6mo", "matched_gap"]
+    gap_reopen_m = gaps_m.loc["reopen_rate_6mo_pct", "matched_gap"]
+    opt_b_m = scenario(status_quo, f"(b, matched) Applicants bear it: r and reopen = status quo + legacy gap "
+                       f"matched on size and region ({MATCH_LABELS[MATCH_HEADLINE]}, E15f); status-quo "
+                       f"days to fill", dtf_new, r_override=r_sq + gap_r_m,
+                       reopen_override=sq["reopen_pct"] + gap_reopen_m)
     # (c) Meridian bears it: structured interview / work sample. STATED ASSUMPTIONS: recovers half
     # of the legacy retention gap; +15 recruiter minutes per REVIEWED application (not per received);
     # +3 days to fill.
@@ -266,13 +277,14 @@ def main() -> None:
                      f"ASSUMED r recovers {D_RECOVERY:.0%} of the legacy gap (separations are "
                      f"front-loaded, E18)", dtf_new, c_policy=D_BONUS,
                      r_override=r_sq + D_RECOVERY * (r_leg - r_sq))
-    opts = pd.DataFrame([scen.iloc[0].to_dict(), opt_a, opt_a2, opt_b_lo, opt_b, opt_b_hi, opt_c, opt_d])
+    opts = pd.DataFrame([scen.iloc[0].to_dict(), opt_a, opt_a2, opt_b_lo, opt_b, opt_b_hi, opt_b_m, opt_c, opt_d])
+    b_rows = [opt_b_lo, opt_b, opt_b_hi, opt_b_m]
     for q in ("excl", "incl"):
         opts[f"delta_vs_status_quo_{q}_quality"] = opts[f"CPR_{q}_quality"] - opts.loc[0, f"CPR_{q}_quality"]
         opts[f"annual_delta_{q}_quality_$M"] = opts[f"delta_vs_status_quo_{q}_quality"] * annual_retained / 1e6
     write_table("E19", fmt(opts).round({"annual_delta_excl_quality_$M": 2, "annual_delta_incl_quality_$M": 2}),
                "Cost per retained employee by option, vs status quo",
-               sample_line=f"Status quo, (a) and (b) are observed cohorts; (a'), (b low/high), (c) and "
+               sample_line=f"Status quo, (a) and (b) are observed cohorts; (a'), (b low/high/matched), (c) and "
                            f"(d) rest on the stated assumptions in the row label. Annual figures use "
                            f"{annual_retained:,.0f} retained seats a year ({annual_hires:,} new-ATS "
                            f"hires x r, 2025 H1 pace x 2).",
@@ -284,6 +296,15 @@ def main() -> None:
                      "delta_vs_status_quo_excl_quality", "delta_vs_status_quo_incl_quality"]].to_string(index=False))
 
     dv = lambda o, q: o[f"CPR_{q}_quality"] - opts.loc[0, f"CPR_{q}_quality"]  # noqa: E731
+    b_lo_ex, b_hi_ex = max(dv(o, "excl") for o in b_rows), min(dv(o, "excl") for o in b_rows)
+    b_lo_in, b_hi_in = max(dv(o, "incl") for o in b_rows), min(dv(o, "incl") for o in b_rows)
+    ann = lambda o, q: dv(o, q) * annual_retained / 1e6  # noqa: E731
+    b_ann_lo_ex, b_ann_hi_ex = max(ann(o, "excl") for o in b_rows), min(ann(o, "excl") for o in b_rows)
+    b_ann_lo_in, b_ann_hi_in = max(ann(o, "incl") for o in b_rows), min(ann(o, "incl") for o in b_rows)
+    b_which = dict(zip(range(4), ["DiD-only gain", "legacy-observed r at status-quo days to fill",
+                                  "legacy-observed r and days to fill", "size-and-region matched gap"]))
+    lo_row = max(range(4), key=lambda i: dv(b_rows[i], "excl"))
+    hi_row = min(range(4), key=lambda i: dv(b_rows[i], "excl"))
     log_result(
         "H11 -- cost each option against the status quo", "E19",
         finding=(f"Per retained employee, versus the status quo (${opts.loc[0,'CPR_excl_quality']:,.0f} "
@@ -291,24 +312,25 @@ def main() -> None:
                  f"${dv(opt_a2,'excl'):+,.0f} if the 2024-25 retention change ({trend:+.3f}) "
                  f"continues; (b) applicants bear it ${dv(opt_b,'excl'):+,.0f} excl. quality / "
                  f"${dv(opt_b,'incl'):+,.0f} incl. at status-quo days to fill, with a range of "
-                 f"${dv(opt_b_lo,'excl'):+,.0f} to ${dv(opt_b_hi,'excl'):+,.0f} excl. quality "
-                 f"(${dv(opt_b_lo,'incl'):+,.0f} to ${dv(opt_b_hi,'incl'):+,.0f} incl.) across the "
-                 f"DiD-only and legacy-observed bounds; (c) Meridian bears it ${dv(opt_c,'excl'):+,.0f} "
+                 f"${b_lo_ex:+,.0f} to ${b_hi_ex:+,.0f} excl. quality "
+                 f"(${b_lo_in:+,.0f} to ${b_hi_in:+,.0f} incl.) across the DiD-only, legacy-observed "
+                 f"and size-and-region matched bounds (the matched row, E15f, gives r={opt_b_m['r']:.3f} "
+                 f"and ${dv(opt_b_m,'excl'):+,.0f} excl. / ${dv(opt_b_m,'incl'):+,.0f} incl., so matching "
+                 f"does not pull (b) toward the DiD bound); (c) Meridian bears it ${dv(opt_c,'excl'):+,.0f} "
                  f"/ ${dv(opt_c,'incl'):+,.0f} under the stated assumptions (half the gap recovered, "
                  f"${c_extra:,.0f} of extra recruiter time per hire, +{C_DTF} days); (d) bear it after "
                  f"hiring ${dv(opt_d,'excl'):+,.0f} / ${dv(opt_d,'incl'):+,.0f} for a ${D_BONUS} "
                  f"bonus recovering a sixth of the gap. Annual, at {annual_retained:,.0f} retained "
-                 f"seats: (b) saves ${-opts.loc[3,'annual_delta_excl_quality_$M']:.1f}M-"
-                 f"${-opts.loc[5,'annual_delta_excl_quality_$M']:.1f}M excl. quality "
-                 f"(${-opts.loc[3,'annual_delta_incl_quality_$M']:.1f}M-"
-                 f"${-opts.loc[5,'annual_delta_incl_quality_$M']:.1f}M incl.; low bound = DiD-only "
-                 f"gain, high bound = legacy-observed r and days to fill), before any "
+                 f"seats: (b) saves ${-b_ann_lo_ex:.1f}M-${-b_ann_hi_ex:.1f}M excl. quality "
+                 f"(${-b_ann_lo_in:.1f}M-${-b_ann_hi_in:.1f}M incl.; low bound = {b_which[lo_row]}, "
+                 f"high bound = {b_which[hi_row]}), before any "
                  f"implementation cost, which the data do not contain. Caveats: the legacy centers "
                  f"are smaller, receive fewer applications, and their own essay signal is eroding "
                  f"(E12b/E12d), so (b) as 'copy the legacy configuration' is an upper bound on a "
                  f"timed section alone; (c) and (d) are assumption-driven."),
         spec="Same worksheet as H10; (a') trended; (b) legacy 2024-25 cohort at status-quo days to "
-             "fill, bounded by the DiD-only gain and the legacy-observed days to fill; (c),(d) "
+             "fill, bounded by the DiD-only gain, the legacy-observed days to fill and the "
+             "size-and-region matched gap (E15f, shared helper utils.matched_legacy_gaps); (c),(d) "
              "assumed recoveries stated in the row labels",
         sample="See E19 n column; (c) and (d) have no observed n",
         verdict="supported as a comparison framework -- (b) is the only option whose retention "
@@ -334,15 +356,20 @@ def main() -> None:
     for col, c in zip(pivot.columns, shades):
         ax.plot(pivot.index, pivot[col], marker="o", label=f"+{col} days to fill", color=c, linewidth=2)
     ax.axhline(opts.loc[0, "CPR_excl_quality"], color="#7F7F7F", linestyle="--", label="Status quo")
-    for rv, lab in ((r_sq + did_gain, "DiD gain"), (r_leg, "legacy 2024-25"), (scen.iloc[4]["r"], "pre-AI")):
+    markers = ((r_sq + did_gain, "DiD gain"), (r_leg, "legacy 2024-25"), (opt_b_m["r"], "matched"),
+               (scen.iloc[4]["r"], "pre-AI"))
+    for i, (rv, lab) in enumerate(sorted(markers)):
         ax.axvline(rv, color="#BBBBBB", linestyle=":", linewidth=1)
-        ax.text(rv, ax.get_ylim()[1], f" r = {rv:.3f}\n {lab}", fontsize=7, va="top")
+        last = i == len(markers) - 1               # right-most marker: label to its left so it is not clipped
+        # labels alternate between two heights so neighbouring markers (0.857 / 0.866) do not collide
+        ax.text(rv, 0.99 - 0.10 * (i % 2), f" r = {rv:.3f} \n {lab} ", fontsize=8.5, va="top",
+                ha="right" if last else "left", transform=ax.get_xaxis_transform())
     ax.set_xlabel("Six-month retention probability r under option (b)")
     ax.set_ylabel("Cost per retained employee, $ (excl. operational quality)")
     ax.set_title("E20. Option (b) stays cheaper than the status quo unless a timed section adds "
                  "roughly a week\nof vacancy per hire without buying the full legacy retention gain",
-                 fontsize=11)
-    ax.legend(fontsize=8, loc="upper right")
+                 fontsize=12.5)
+    ax.legend(fontsize=9.5, loc="lower left")
     save_fig(fig, "E20", "sensitivity_option_b",
             sample_line="Worksheet evaluated over a grid of r (status quo to pre-AI level) and extra "
                         "days to fill; other inputs at 2025 averages; quality excluded.",
@@ -361,8 +388,9 @@ def main() -> None:
         saving = base - (cost_per_retained(chire0, r_val, rates["separation_cost_per_exit"]) + cq)
         # each extra vacancy day costs vacancy_cost_per_day / r per retained employee
         return saving / (rates["vacancy_cost_per_day"] / r_val)
-    be = pd.DataFrame({"r_assumed": [r_sq + did_gain, r_leg, scen.iloc[4]["r"]],
-                       "label": ["DiD gain only", "legacy 2024-25 observed", "pre-AI level"]})
+    be = pd.DataFrame({"r_assumed": [r_sq + did_gain, r_leg, opt_b_m["r"], scen.iloc[4]["r"]],
+                       "label": ["DiD gain only", "legacy 2024-25 observed",
+                                 f"legacy gap matched on size and region ({MATCH_HEADLINE}, E15f)", "pre-AI level"]})
     be["breakeven_extra_days_excl_quality"] = [breakeven_days(r, False) for r in be["r_assumed"]]
     be["breakeven_extra_days_incl_quality"] = [breakeven_days(r, True) for r in be["r_assumed"]]
     # (c) break-even recovery share at its stated cost
@@ -388,11 +416,14 @@ def main() -> None:
                  f"{be.iloc[0]['breakeven_extra_days_excl_quality']:.0f} extra vacancy days if it only "
                  f"buys the DiD retention gain (r={be.iloc[0]['r_assumed']:.3f}), "
                  f"{be.iloc[1]['breakeven_extra_days_excl_quality']:.0f} days at the legacy-observed "
-                 f"r={be.iloc[1]['r_assumed']:.3f}, and {be.iloc[2]['breakeven_extra_days_excl_quality']:.0f} "
-                 f"days at the pre-AI r={be.iloc[2]['r_assumed']:.3f} (excluding quality; including "
+                 f"r={be.iloc[1]['r_assumed']:.3f}, {be.iloc[2]['breakeven_extra_days_excl_quality']:.0f} "
+                 f"days at the size-and-region matched r={be.iloc[2]['r_assumed']:.3f} (E15f), and "
+                 f"{be.iloc[3]['breakeven_extra_days_excl_quality']:.0f} "
+                 f"days at the pre-AI r={be.iloc[3]['r_assumed']:.3f} (excluding quality; including "
                  f"quality the break-evens are {be.iloc[0]['breakeven_extra_days_incl_quality']:.0f}, "
-                 f"{be.iloc[1]['breakeven_extra_days_incl_quality']:.0f} and "
-                 f"{be.iloc[2]['breakeven_extra_days_incl_quality']:.0f} days). Vacancy cost is "
+                 f"{be.iloc[1]['breakeven_extra_days_incl_quality']:.0f}, "
+                 f"{be.iloc[2]['breakeven_extra_days_incl_quality']:.0f} and "
+                 f"{be.iloc[3]['breakeven_extra_days_incl_quality']:.0f} days). Vacancy cost is "
                  f"${rates['vacancy_cost_per_day']:.0f}/day. Legacy centers today fill faster, not "
                  f"slower, than new-ATS centers ({dtf_legacy:.1f} vs {dtf_new:.1f} days, E10b), so the "
                  f"'fewer applicants means longer to fill' fear is not visible in the data, but those "
@@ -405,7 +436,9 @@ def main() -> None:
                  f"instead if separations were concentrated in months 4-6, but {late:.0%} of them are "
                  f"(E18) and {early:.0%} happen in months 1-2, before a probation review could act. "
                  f"We would recommend doing nothing if the Round 2 packet showed the legacy centers' "
-                 f"retention advantage disappears once matched on size and region, or that the "
+                 f"retention advantage disappears once matched on size and region (on our data it does "
+                 f"not: matched gap {gap_r_m:.3f} vs unmatched {r_leg - r_sq:.3f}, E15f, but with 7 legacy "
+                 f"centers that is a bound), or that the "
                  f"vendor cannot re-time the section at a cost below roughly the annual saving in E19."),
         spec="Worksheet over a grid of r and extra days to fill; break-even days = saving / "
              "(vacancy_cost_per_day / r); option (c) break-even recovery by grid search",
