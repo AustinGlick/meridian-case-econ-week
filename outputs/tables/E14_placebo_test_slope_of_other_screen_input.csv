@@ -1,0 +1,17 @@
+,regime,estimate,se,ci_low,ci_high,variable
+0,legacy_pre,0.00889,0.00267,0.00365,0.01412,resume_score
+1,legacy_post,0.01156,0.00447,0.0028,0.02032,resume_score
+2,new_pre,0.0079,0.00241,0.00317,0.01263,resume_score
+3,new_post,0.02266,0.00289,0.017,0.02832,resume_score
+4,legacy_pre,0.01959,0.00551,0.00879,0.0304,has_adjuster_license
+5,legacy_post,0.0496,0.00857,0.03279,0.0664,has_adjuster_license
+6,new_pre,0.03329,0.00976,0.01415,0.05242,has_adjuster_license
+7,new_post,0.06048,0.00548,0.04973,0.07122,has_adjuster_license
+8,legacy_pre,0.00408,0.00136,0.00142,0.00674,prior_claims_years
+9,legacy_post,0.00888,0.00177,0.0054,0.01235,prior_claims_years
+10,new_pre,0.00546,0.00263,0.0003,0.01062,prior_claims_years
+11,new_post,0.00785,0.00166,0.0046,0.01111,prior_claims_years
+12,legacy_pre,-0.00476,0.00428,-0.01314,0.00362,interview_score
+13,legacy_post,0.01931,0.00815,0.00333,0.03528,interview_score
+14,new_pre,0.00072,0.00691,-0.01282,0.01427,interview_score
+15,new_post,0.03185,0.00394,0.02413,0.03956,interview_score

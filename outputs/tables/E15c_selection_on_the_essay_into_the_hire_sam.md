@@ -1,0 +1,12 @@
+### E15c. Selection on the essay into the hire sample, by regime
+
+| regime4     |   applicant_essay_mean |   applicant_essay_sd |   hire_essay_mean |   hire_essay_sd |   hire_rate_bin_18_23 |   hire_rate_bin_24_30 |   share_applicants_24_30 |
+|:------------|-----------------------:|---------------------:|------------------:|----------------:|----------------------:|----------------------:|-------------------------:|
+| legacy_pre  |                 17.155 |                4.607 |            23.653 |           2.957 |                 0.120 |                 0.579 |                    0.084 |
+| legacy_post |                 17.558 |                4.740 |            24.005 |           2.975 |                 0.097 |                 0.486 |                    0.105 |
+| new_pre     |                 18.016 |                4.591 |            24.502 |           2.869 |                 0.083 |                 0.501 |                    0.118 |
+| new_post    |                 19.875 |                4.832 |            25.552 |           2.845 |                 0.041 |                 0.274 |                    0.232 |
+
+*Sample:* All reviewed applications and all hires with an observed outcome.
+*Notes:* If the hire-sample essay SD were much smaller in one cell, a zero slope there could be a range-restriction artifact. It is not: the SD is similar in every cell. What changed is the share of applicants scoring 24-30 and the hire rate within that bin.
+*Source:* analysis/07_identification.py

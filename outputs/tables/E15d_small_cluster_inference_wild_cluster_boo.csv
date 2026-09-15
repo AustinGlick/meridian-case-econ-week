@@ -1,0 +1,5 @@
+test,difference,cluster_se,cluster_p,wild_bootstrap_p_299,n,clusters
+"hires: retention slope, new_post minus legacy_pre",-0.01125,0.00144,0.0,0.0,41677,40
+"hires: retention slope, legacy_post minus legacy_pre",-0.00394,0.00212,0.06348,0.08027,41677,40
+"flex: reopen slope, new_post minus legacy_pre",0.10989,0.01265,0.0,0.0,28672,40
+"flex: reopen slope, legacy_post minus legacy_pre",0.05729,0.01576,0.00028,0.00334,28672,40

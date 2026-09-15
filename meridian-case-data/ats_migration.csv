@@ -1,0 +1,41 @@
+center_id,region,headcount,size_index,migration_month,migration_wave
+C00,Midwest,175,0.796,2024-09,2024 rollout
+C01,Mid-Atlantic,207,0.941,2023-03,2023 rollout
+C02,Mid-Atlantic,394,1.79,2021-07,2021 vendor pilot
+C03,Midwest,277,1.259,2021-03,2021 vendor pilot
+C04,Southeast,124,0.563,,not migrated
+C05,Midwest,220,0.998,2022-01,2021 vendor pilot
+C06,Mid-Atlantic,177,0.804,,not migrated
+C07,Midwest,232,1.053,2023-09,2023 rollout
+C08,Southeast,125,0.57,,not migrated
+C09,Midwest,239,1.088,,not migrated
+C10,Southwest,239,1.086,2024-03,2024 rollout
+C11,Midwest,382,1.736,2022-01,2021 vendor pilot
+C12,Midwest,246,1.117,2023-09,2023 rollout
+C13,Southeast,263,1.196,2023-09,2023 rollout
+C14,Mid-Atlantic,130,0.593,2023-03,2023 rollout
+C15,Mountain,484,2.2,2021-03,2021 vendor pilot
+C16,Southeast,113,0.511,,not migrated
+C17,Southwest,324,1.471,2021-03,2021 vendor pilot
+C18,Southwest,196,0.891,2023-03,2023 rollout
+C19,Southeast,162,0.735,2024-03,2024 rollout
+C20,Mountain,175,0.795,2023-09,2023 rollout
+C21,Mountain,174,0.79,2024-03,2024 rollout
+C22,Southeast,251,1.142,2021-07,2021 vendor pilot
+C23,Southwest,212,0.962,2022-01,2021 vendor pilot
+C24,Mid-Atlantic,370,1.68,2021-07,2021 vendor pilot
+C25,Southeast,116,0.527,2023-09,2023 rollout
+C26,Southwest,220,0.999,2024-09,2024 rollout
+C27,Mid-Atlantic,161,0.732,2023-03,2023 rollout
+C28,Mid-Atlantic,289,1.312,2024-03,2024 rollout
+C29,Southwest,105,0.476,2024-03,2024 rollout
+C30,Mountain,195,0.887,2023-03,2023 rollout
+C31,Southwest,237,1.076,2023-03,2023 rollout
+C32,Mid-Atlantic,131,0.595,2024-09,2024 rollout
+C33,Southwest,311,1.412,2021-07,2021 vendor pilot
+C34,Mountain,234,1.065,2023-09,2023 rollout
+C35,Midwest,313,1.422,2021-03,2021 vendor pilot
+C36,Southeast,308,1.399,2022-01,2021 vendor pilot
+C37,Southeast,156,0.71,,not migrated
+C38,Southwest,166,0.756,2024-09,2024 rollout
+C39,Midwest,205,0.931,,not migrated

@@ -1,0 +1,5 @@
+,estimate,se,ci_low,ci_high,p,n,clusters
+Intercept,21.3738,3.8938,13.7421,29.0056,0.0,2400,40
+apps_per_opening,0.0279,0.011,0.0064,0.0493,0.011,2400,40
+recruiter_minutes_per_application,-0.7919,0.3835,-1.5437,-0.0402,0.0389,2400,40
+local_unemployment_rate,0.5368,0.2747,-0.0016,1.0752,0.0507,2400,40

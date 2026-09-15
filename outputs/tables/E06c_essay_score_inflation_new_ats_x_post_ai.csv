@@ -1,0 +1,4 @@
+term,estimate,se,ci_low,ci_high,p,n,clusters
+"new ATS effect, pre-AI era (2021-22)",0.8927,0.0331,0.8278,0.9577,0.0,529302,40
+"DiD interaction: extra new-ATS effect, AI era",0.7874,0.1082,0.5753,0.9996,0.0,529302,40
+"post-era gap, new vs legacy (sum of the two)",1.6802,0.1139,1.457,1.9034,0.0,529302,40
