@@ -44,9 +44,13 @@ own exhibits and its own block in `outputs/RESULTS.md`.
 LaTeX or system fonts). It converts the Markdown narrative in `report/draft.md` to Typst, appends
 every exhibit from `outputs/` in the order listed under "Appendix order" in
 `report/narrative_outline.md`, and writes `report/Meridian_Round1.pdf` (committed) plus the Typst
-source in `build/report.typ`. The build fails if the narrative exceeds four pages or if an exhibit
-id in the outline list has no PNG or table on disk; it warns about exhibits on disk that the
-outline does not list.
+source in `build/report.typ`. The build fails if the narrative exceeds four pages, if an exhibit
+id in the outline list has no PNG or table on disk, or if the narrative cites an exhibit id that
+is not in the appendix. Exhibits on disk that the outline does not list are appended at the end
+when the narrative cites them (E15f, E15g today) and otherwise reported as a warning; exhibits the
+narrative never cites are listed so the team can decide whether to cut or cite them. The appendix
+opens with an exhibit index; table numbers are tidied at build time (thousands separators, no
+trailing zeros) without touching `outputs/`.
 
 ## Rules everyone should know
 

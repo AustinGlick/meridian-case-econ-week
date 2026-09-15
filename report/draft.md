@@ -1,130 +1,59 @@
-# Meridian Casualty: Hiring Is Broken — Can You Fix It?
+# Meridian Casualty: Hiring Is Broken. Can You Fix It?
 
-[PLACEHOLDER — narrative to be written. Every paragraph below is filler that shows the build
-pipeline works. No number in this file is real. Numbers go in only when copied from
-outputs/RESULTS.md with their exhibit id.]
+Econ Week 2026 case competition, Round 1 written analysis. Team: [add team member names]. All numbers cite an exhibit in the appendix; the exhibit tables carry sample sizes, standard errors and confidence intervals.
 
-## 0. Recommendation
+## Recommendation: make applicants bear it. Re-time the situational section, block pasting, and flag fast answers
 
-[PLACEHOLDER — narrative to be written.] We recommend option **(b), make applicants bear it**:
-re-time the situational section, disable paste, and flag very fast answers for recruiters. The
-cost against the status quo is stated as a range per retained employee and per year (E19),
-excluding and including operational quality (E17). Lorem ipsum dolor sit amet, consectetur
-adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+Meridian should move the situational section on its new applicant tracking system (ATS) back to the timed, no-paste format its seven legacy centers still use, and show recruiters the minutes each applicant spent in the section. This is option (b). Against the status quo it lowers the cost of one retained employee by **$713 to $1,556** when operational quality is left out, and by **$2,548 to $3,392** when it is monetized (E19). At Meridian's current new-ATS hiring pace that is **$4.9 million to $10.6 million a year** before quality and before the vendor's implementation charge, which the data do not contain (E19). It is a range, not a point, because the retention gain is bounded below by a difference-in-differences estimate and above by what the seven timed centers actually achieve today (E19 rows b-low, b, b-high).
 
-[PLACEHOLDER — one-sentence reason.] The section has stopped screening on the new system (E12,
-E12b, E12d); the timed system keeps a usable share of the signal (E12b, E12d); the timed centers
-retain more hires today (E01b, E17). Duis aute irure dolor in reprehenderit in voluptate velit
-esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-sunt in culpa qui officia deserunt mollit anim id est laborum.
+The one-sentence reason: the situational section has stopped predicting who stays on the new system since 2023, the timed system keeps a usable share of that signal, and the timed centers retain more hires today (E12, E12b, E12d, E01b, E17). Every other option's retention effect is an assumption we would have to make; option (b)'s is observed in Meridian's own centers.
 
-[PLACEHOLDER — the biggest hole, named.] The seven timed centers are small and their own signal
-is eroding (E07b, E12e), so copying the legacy configuration is an upper bound; the true gain
-lies between the difference-in-differences estimate and the legacy-observed gap (E19). Sed ut
-perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,
-totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae
-dicta sunt explicabo.
+The biggest hole: the seven timed centers are small, southern and mid-Atlantic, and their own signal is eroding. Matching them to new-ATS centers on size and region does not shrink their advantage, but seven centers can only bound it (E15f, E07b, E12e). So "copy the legacy configuration" is an upper bound, and we report the full range rather than its midpoint.
 
-## 1. (a) What the process gets right and where it fails
+| Per retained employee, 2025 rates | Status quo | Option (b) | Saving |
+|---|---|---|---|
+| Excluding operational quality | $23,377 | $21,821 to $22,665 | $713 to $1,556 |
+| Including operational quality | $40,908 | $37,516 to $38,360 | $2,548 to $3,392 |
+| Annual, 6,830 retained seats | | | $4.9M to $10.6M (excl. quality) |
 
-[PLACEHOLDER — narrative to be written.] Nemo enim ipsam voluptatem quia voluptas sit aspernatur
-aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi
-nesciunt. License, referral, resume and the structured interview still predict retention in
-every cell and are stronger in the AI era (E11, E11b, E14). The volume machine works: openings
-fill and applications arrive (E10). Neque porro quisquam est, qui dolorem ipsum quia dolor sit
-amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et
-dolore magnam aliquam quaerat voluptatem.
+Source: E17, E19. Six-month retention r = 0.819 at the status quo; 0.843 to 0.857 under (b).
 
-[PLACEHOLDER — judgment 1.] The screen still weights the essay exactly as it did when the essay
-worked (E11c). The process has not adapted. Ut enim ad minima veniam, quis nostrum
-exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?
-Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae
-consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
+## (a) The process still measures the right things, but it weights a signal that no longer exists and reads it with half the time
 
-[PLACEHOLDER — judgment 2.] Recruiter capacity is spread thinner every year (E10, E10b, E10c);
-the new ATS draws more applications per opening in the AI era (E10d), so the least informative
-essays arrive where recruiters have the least time to read them. At vero eos et accusamus et
-iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti
-quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique
-sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.
+**What works.** Four screen inputs still predict who lasts six months, and all four are stronger in the AI era than before it. Holding the other inputs fixed, an adjuster license raises six-month retention by 1.6 points among hires who applied on the legacy system before 2023 and by 4.9 points on the new system after 2023; a referral goes from 1.6 to 3.2 points, the resume score from 1.0 to 1.9 points per unit, and the structured interview from 0.9 to 2.7 points per unit (E11, E11b, E14). The volume machine also works: openings fill in about a month and every posting draws well over a hundred applications (E10, E10b).
 
-[PLACEHOLDER — consequence.] Retention falls more on the new ATS after 2023 (E01, E01b), reopen
-rates rise (E02, E02b), and separations rise in every reason category (E03, E03c). Whitfield's
-"best-run centers are worst" is the pilot-wave effect (E04, E05). Et harum quidem rerum facilis
-est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil
-impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis
-dolor repellendus.
+**Where it fails, first judgment: the screen has not adapted.** The recruiter screen score is a fixed formula. The essay's weight inside it is 0.250 in every ATS-and-era cell, with an R-squared of 0.82 to 0.86, exactly what it was when the essay worked (E11c). Meanwhile the essay's own predictive slope on retention has gone from 0.8 points per rubric point on the legacy system before 2023 to zero on the new system after 2023 (E11b). Meridian is still paying a quarter of its screen for information that is no longer there.
 
-## 2. (b) Does the situational section still work as a screen, and how we know
+**Second judgment: recruiter capacity is spread thinner every year, and thinnest where the essay is least informative.** Applications per opening rose from 150 in 2021 to 217 in 2025 while recruiter minutes per application fell from 6.2 to 3.0 and days to fill rose from 22 to 30 (E10b). Each extra applicant per opening costs 0.023 minutes of review per application (E10c). The new ATS itself draws 348 more applications per center-month than the legacy system in the AI era, plausibly because an untimed, paste-friendly section is easier to finish (E10d). So the least informative essays arrive in the centers with the least time to read them.
 
-[PLACEHOLDER — the comparison and on whom.] *Comparison*: the slope of essay score on the
-six-month outcome within each of four cells (legacy or new ATS, application before or after
-2023-01). *On whom*: permanent hires, who were selected on the essay and so understate the
-slope, and flex placements, who were not selected on the essay by Meridian. Temporibus autem
-quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates
-repudiandae sint et molestiae non recusandae.
+**The consequence is what Whitfield sees.** Six-month retention on the new ATS fell 2.3 points more than on the legacy system once the AI era began (difference-in-differences −0.023, 95% CI −0.042 to −0.004, 41,677 hires, E01b). Reopen rates on the new ATS are 0.14 to 0.25 percentage points higher in the AI era; the lower figure is the interaction, the upper the raw AI-era gap, and only the upper clears zero (E02b). Separations rose across voluntary, performance and attendance exits, with no single reason carrying the increase (E03, E03c), which fits a screen that admits people who neither stick nor perform rather than a labor-market story. Her "best-run centers are worst" is the pilot wave: the largest centers migrated first in 2021, held retention at 0.878 through 2022, then fell to 0.830 by 2024-25, while never-migrated centers moved from 0.889 to 0.857; the decline appears in every size tercile (E04, E05).
 
-[PLACEHOLDER — result.] E12 (bins), E12b (hires retention), E12c (hires reopen), E12d (flex
-reopen). Signal retained by cell as a range across the two samples: E15e. Itaque earum rerum hic
-tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut
-perferendis doloribus asperiores repellat. Lorem ipsum dolor sit amet, consectetur adipiscing
-elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+## (b) The situational section no longer screens on the new system, and we know because its slope on outcomes collapsed in one cell and nowhere else
 
-[PLACEHOLDER — mechanism.] Slow essays still work everywhere; fast high scores on the new ATS in
-the AI era predict worse retention; effort no longer earns points (E13, E13b, E13c). Ut enim ad
-minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-pariatur.
+**The comparison.** We estimate the slope of the essay rubric score on the six-month outcome within each of four cells: legacy or new ATS at the application month, crossed with application before or after January 2023. **On whom.** Two samples. Permanent hires (41,677 with an observed outcome, after dropping 4,589 censored hires, E00) were selected on the essay, so every slope in that sample is attenuated. Flex placements (28,672) applied to Meridian, were not selected, and were placed by the staffing partner on certification, geography and availability; Meridian did not select them on the essay, so their slope is the cleaner one. Both use center and month fixed effects with standard errors clustered by center.
 
-[PLACEHOLDER — placebo.] Every other input holds or strengthens (E14). Excepteur sint occaecat
-cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut
-perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.
+**The result.** Among hires, a rubric point raised retention by 0.87 points on the legacy system before 2023 (95% CI 0.69 to 1.05) and 1.07 points on the new system before 2023 (0.74 to 1.40). On the new system after 2023 the slope is −0.26 points (−0.49 to −0.02): a higher essay score now predicts slightly worse retention (E12b). On the legacy system after 2023 it is 0.48 points (0.14 to 0.82), roughly half its old value (E12b). Flex placements tell the same story on reopen rates: each rubric point lowered the reopen rate by 0.18 points on legacy and 0.21 on the new system before 2023, by 0.12 on legacy after 2023, and by only 0.07 on the new system after 2023 (E12d). E12 shows it without a regression: a 24-30 essay retains better than an 18-23 essay in three cells and worse in the fourth, 0.829 against 0.853. Combining the two samples, the new ATS in the AI era keeps **0% to 39%** of the essay's pre-2023 predictive power and the legacy ATS keeps **55% to 68%** (E15e). It is a range because hires understate the loss and flex placements do not.
 
-[PLACEHOLDER — timing and identification.] Scores climb from 2023 in all new-ATS centers
-regardless of migration date (E06, E06b); no pre-trend (E15); within-center before and after
-(E12e); not the labor market (E16); not range restriction (E15c); survives the wild-cluster
-bootstrap (E15d). Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi
-architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit
-aspernatur aut odit aut fugit.
+**The mechanism is time in the section.** Among hires who spent 15 minutes or more writing, the essay still predicts retention in every cell, including the new system in the AI era (0.41 points per rubric point, 0.20 to 0.61). Among those who spent under 15 minutes on the new system after 2023, a higher score predicts worse retention (−1.64 points, −2.06 to −1.22) (E13, E13b). Effort used to earn points: on the legacy system before 2023 a minute in the section added 0.054 rubric points; on the new system after 2023 a minute subtracts 0.021 (E13c). Fast high scores are the signature of a prepared answer pasted in. Meridian already records minutes in section and does not use them.
 
-[PLACEHOLDER — what must be true.] (i) Flex placement is not selected on the essay; (ii) nothing
-unobserved changed at migrating centers in 2023 that also changed essay validity (E15); (iii)
-the 2023-01 cutoff is substantively right, and any cutoff in 2023 gives the same story (E06b).
-Sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro
-quisquam est, qui dolorem ipsum quia dolor sit amet.
+**Placebo.** If something center-wide had changed, every input would have lost power. None did: the resume slope went from 0.9 to 2.3 points, license from 2.0 to 6.1, prior claims years from 0.4 to 0.8, interview from −0.5 to 3.2, over the same cells in which the essay went from 0.87 to −0.26 (E14).
 
-[PLACEHOLDER — could not determine.] Whether any individual used AI; what the unreviewed
-applicants look like; the legacy system's own erosion path beyond 2025. Quis autem vel eum iure
-reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur.
+**Timing and identification.** Essay scores rise from 2023 in every new-ATS center regardless of when it migrated, including the 2021 pilots, so the break is the AI era meeting an untimed field, not the software itself (E06). A grid search over break dates finds a ramp rather than a jump, so any cutoff in 2023 tells the same story (E06b). Controlling for center, month and observable applicant traits, the new ATS raised scores by 0.89 rubric points before 2023 and by a further 0.79 points (0.58 to 1.00) once AI writing arrived (E06c), while objective attributes and the flex pool's own quality did not move (E08b, E09b). Before 2023 the pilot centers' essay slope matched the never-migrated centers' (0.010 against 0.008 per rubric point, E15g), so migration did not select on essay validity. The event study shows no pre-trend and a widening of 0.029 after migration that matches the difference-in-differences from a different design (E15, E15b). Unemployment and wages move together across ATS groups (E16, E16b). The essay's standard deviation among hires is 2.85 to 2.98 in every cell, so the zero slope is not range restriction; what changed is that 23% of new-ATS AI-era applicants score 24-30 against 8% of legacy applicants before 2023 (E15c). With 40 centers, a wild-cluster bootstrap on the slope difference between the new-ATS AI-era cell and the legacy pre-2023 cell gives p below 0.01 in both samples (E15d).
 
-## 3. (c) The decision
+**What must be true** for this to mean the essay stopped screening: that the staffing partner does not place on the essay (stated in the case); that nothing unobserved changed at migrating centers in 2023 that also changed essay validity (E15 and the pre-period parity above); and that the 2023 cutoff is substantively right (E06b). **What we could not determine:** whether any individual used AI; what the roughly 94% of applications never reviewed look like (E10b); and how far the legacy system's own erosion continues, since its sub-10-minute share doubled from 6% to 12% and its bootstrap p on erosion is 0.08 for hires and 0.003 for flex (E07b, E15d). A timed field slows the leak; it does not stop it.
 
-[PLACEHOLDER — worksheet and options.] The worksheet reproduces the prompt's worked example
-(E17a). Status quo and counterfactuals (E17). The four options in one table (E19), with (c) and
-(d) explicitly assumption-driven. At vero eos et accusamus et iusto odio dignissimos ducimus qui
-blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias
-excepturi sint occaecati cupiditate non provident.
+## (c) Option (b) is the only choice whose retention effect is observed, and it wins under every bound
 
-| Option | Cost per retained employee | Annual cost vs status quo | Basis |
-|---|---:|---:|---|
-| (a) Do nothing | [E19] | [E19] | observed |
-| (b) Applicants bear it | [E19 range] | [E19 range] | observed in legacy centers |
-| (c) Meridian bears it | [E19] | [E19] | assumed |
-| (d) Bear it after hiring | [E19] | [E19] | assumed |
+We implement Meridian's worksheet exactly and reproduce the worked example (E17a). The status quo is new-ATS hires starting in 2024-25: r = 0.819, 28.9 days to fill, an 8.9% reopen rate, and a cost per retained employee of $23,377 excluding quality and $40,908 including it (E17). Three counterfactuals in which the essay still screened put the cost of the lost information at $713 to $1,830 per retained employee excluding quality and $2,548 to $4,334 including it (E17). We monetize quality explicitly and show both figures throughout, because the quality term roughly doubles every gap and can change the ranking.
 
-[PLACEHOLDER — sensitivity and break-evens.] E20 and E20b give the sensitivity; E20c gives the
-extra vacancy days that erase (b)'s saving at each retention bound and the recovery share (c)
-would need. Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et
-dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio.
+E19 costs the four options against the status quo per retained employee. **(a) Do nothing** saves $23 if the flat 2024-to-2025 retention trend continues. **(b) Applicants bear it** saves $713 to $1,556 excluding quality, using the legacy centers' 2024-25 retention and reopen rate at the status quo's days to fill, bounded below by the difference-in-differences gain alone and above by the legacy centers' shorter fill time. The size-and-region matched estimate, $1,379, sits inside that range (E15f, E19). **(c) Meridian bears it**, a structured interview at 15 extra recruiter minutes per reviewed application ($204 per hire) and 3 more days to fill, costs $448 more excluding quality and $469 less including it, if it recovers half the gap; that recovery is assumed, not observed. **(d) Bear it after hiring**, a $500 six-month bonus, costs $305 more either way, because separations are front-loaded: 47% of leavers are gone by month two and only 33% leave in months four to six, before a probation review can act (E18, E18b). Recruiter screening time adds about $740 per hire and is excluded from the worksheet figures (E17b).
 
-[PLACEHOLDER — what would change our recommendation.]
+**Sensitivity.** The prompt's warning holds: (b) trades fewer separations for possibly more vacancy days. At $219 per vacancy day, (b)'s saving is erased by 3 extra days to fill if it only buys the difference-in-differences gain, 4 days at the legacy-observed retention, 5 at the matched estimate, and 7 at the pre-AI level; including quality, 10 to 15 days (E20, E20c). In the data the timed centers fill faster, not slower (27.3 against 28.9 days), and the matched gap is still about 0.7 days in their favor, so the "fewer applicants, longer fill" fear is not visible, though those centers are small (E10b, E15f).
 
-- We would recommend (c) instead if [PLACEHOLDER].
-- We would recommend (d) instead if [PLACEHOLDER].
-- We would recommend doing nothing if [PLACEHOLDER].
+**We would recommend something else if:**
 
-[PLACEHOLDER — Round 2 triggers.] Vendor cost and feasibility of re-timing; legacy centers
-matched on size and region; a labor-market shock; a revised cost per reopened claim; evidence
-on applicant drop-off under a timed section. Nam libero tempore, cum soluta nobis est eligendi
-optio cumque nihil impedit quo minus id quod maxime placeat facere possimus.
+- **(c) instead**, if a timed section pushed days to fill up by more than the break-evens above, or if a pilot showed a structured interview recovers more than 89% of the legacy retention gap at $204 per hire (E20c).
+- **(d) instead**, if separations were concentrated in months four to six rather than the first two (E18).
+- **Do nothing**, if the Round 2 packet showed the legacy centers' advantage disappears once matched on size and region (on our data it does not, E15f), or that the vendor cannot re-time the section for less than the annual saving in E19.
+
+**Implementation, in three steps.** First, at no cost and starting now, show recruiters the minutes-in-section field Meridian already collects and flag answers under 15 minutes (E13b). Second, ask the vendor for a fixed quote to make the section timed and paste-disabled on the new ATS; the annual saving in E19 is the most that change can cost and still pay. Third, pilot the timed section for one hiring quarter in the centers that migrated in 2024, with two stop rules: days to fill rising by more than the break-even in E20c, or applications per opening falling below the legacy centers' level (E10b). Read the pilot's six-month retention against the difference-in-differences bound before rolling out to the remaining centers. The five things a Round 2 packet could change are the vendor's cost and feasibility, the matched comparison, a labor-market shock, a revised reopened-claim cost, and applicant drop-off under a timed section; we have written down what each would do to this call.

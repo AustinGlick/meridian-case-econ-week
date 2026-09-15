@@ -14,6 +14,7 @@ Produces:
   E15d wild-cluster bootstrap p-values on the headline slope differences
   E15e share of the legacy pre-2023 essay signal retained, hires vs flex
   E15f size-and-region matched comparison of the seven legacy centers (option-b proxy), 2024-25
+  E15g pre-2023 essay slope, pilot vs never-migrated centers (migration did not select on validity)
   E16  labor-market controls (unemployment, wage index) by ATS
 
     python -m analysis.07_identification
@@ -65,6 +66,24 @@ def main() -> None:
                      ["essay_rubric_score", *HIRE_CTRL], fe=["center_id", "start_month"])
     pilot_pre = (r_pilot.params["essay_rubric_score"], r_pilot.bse["essay_rubric_score"], r_pilot.sample_n)
     never_pre = (r_never.params["essay_rubric_score"], r_never.bse["essay_rubric_score"], r_never.sample_n)
+    parity = pd.DataFrame([
+        {"centers": "2021 vendor pilot (migrated 2021)", "essay_slope_on_retention": pilot_pre[0],
+         "se_cluster_center": pilot_pre[1], "ci_low": pilot_pre[0] - 1.96 * pilot_pre[1],
+         "ci_high": pilot_pre[0] + 1.96 * pilot_pre[1], "n_hires": pilot_pre[2],
+         "clusters": int(pre[pre["center_id"].isin(pilot_centers)]["center_id"].nunique())},
+        {"centers": "Never migrated (legacy throughout)", "essay_slope_on_retention": never_pre[0],
+         "se_cluster_center": never_pre[1], "ci_low": never_pre[0] - 1.96 * never_pre[1],
+         "ci_high": never_pre[0] + 1.96 * never_pre[1], "n_hires": never_pre[2],
+         "clusters": int(pre[pre["center_id"].isin(never_centers)]["center_id"].nunique())},
+    ]).set_index("centers")
+    write_table("E15g", parity.round(4),
+                "Pre-2023 essay slope on retention: pilot centers vs never-migrated centers",
+                sample_line=(f"Hires applying before {AI_ERA_CUTOFF} with an observed six-month outcome: "
+                             f"{pilot_pre[2]:,} at pilot centers, {never_pre[2]:,} at never-migrated centers."),
+                notes=("retained_6mo ~ essay_rubric_score + controls, center FE + start-month FE, SEs "
+                       "clustered by center. If migration had selected centers where the essay was "
+                       "more or less valid, these slopes would differ."),
+                source="analysis/07_identification.py")
 
     # ============================================================================
     # Check 2: event study around migration month (retention level)
@@ -326,7 +345,7 @@ def main() -> None:
     pre_gap, post_gap = pre_nev - pre_mig, post_nev - post_mig
     w = wb["wild_bootstrap_p_299"]
     log_result(
-        "H9 -- identification, bounds, and the defended range", "E15/E15b/E15c/E15d/E15e/E15f/E16",
+        "H9 -- identification, bounds, and the defended range", "E15/E15b/E15c/E15d/E15e/E15f/E15g/E16",
         finding=(f"(1) Pre-2023 the essay slope is the same in pilot centers ({pilot_pre[0]:.4f}, se "
                  f"{pilot_pre[1]:.4f}, n={pilot_pre[2]:,}) and never-migrated centers ({never_pre[0]:.4f}, "
                  f"se {never_pre[1]:.4f}, n={never_pre[2]:,}): pilot centers were not different "
