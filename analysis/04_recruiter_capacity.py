@@ -49,8 +49,24 @@ def main() -> None:
             source="analysis/04_recruiter_capacity.py")
     plt.close(fig)
 
-    write_table("E10b", yearly.round(2), "Recruiter-capacity metrics by year and ATS",
+    yearly_out = yearly.copy()
+    for c in ["apps_per_opening", "recruiter_minutes_per_application", "days_to_fill"]:
+        yearly_out[c] = yearly_out[c].round(2)
+    yearly_out["review_share"] = yearly_out["review_share"].round(3)
+    write_table("E10b", yearly_out, "Recruiter-capacity metrics by year and ATS",
                sample_line="2,400 center-months, yearly averages by ATS in that center-month.",
+               source="analysis/04_recruiter_capacity.py")
+
+    # pooled (all-center) yearly trend, the figures quoted in the narrative
+    pooled = cm.groupby("year")[["apps_per_opening", "review_share",
+                                 "recruiter_minutes_per_application", "days_to_fill"]].mean()
+    pooled_out = pooled.copy()
+    pooled_out["review_share"] = pooled_out["review_share"].round(3)
+    for c in ["apps_per_opening", "recruiter_minutes_per_application", "days_to_fill"]:
+        pooled_out[c] = pooled_out[c].round(2)
+    write_table("E10e", pooled_out, "Recruiter-capacity metrics by year, all 40 centers pooled",
+               sample_line="2,400 center-months, yearly averages across all centers regardless of ATS.",
+               notes="Pooled version of E10b; the narrative quotes these all-center figures.",
                source="analysis/04_recruiter_capacity.py")
 
     # does the new ATS itself draw more applications (easier section -> higher apply rate)?
@@ -68,6 +84,14 @@ def main() -> None:
                      fe=["center_id", "month"])
     min_est = res_min.params["apps_per_opening"]
     min_ci = res_min.conf_int().loc["apps_per_opening"].tolist()
+    min_tab = coef_table(res_min)
+    min_tab = min_tab.loc[[i for i in min_tab.index if not i.startswith("C(")]]
+    write_table("E10f", min_tab.round(4), "Recruiter minutes per application vs applications per opening",
+               sample_line=f"n={res_min.sample_n} center-months, {res_min.n_clusters} center clusters.",
+               notes="Outcome: recruiter_minutes_per_application. FE: center, month. Cluster: center. "
+                     "A negative coefficient means each extra applicant per opening buys less review "
+                     "time per application: recruiters spread a fixed capacity over a growing queue.",
+               source="analysis/04_recruiter_capacity.py")
 
     # does volume/thinner review drive up days to fill?
     res_fill = fe_ols(cm, "days_to_fill",
@@ -97,10 +121,11 @@ def main() -> None:
         finding=(f"Applications per opening rose from {trend_apps.iloc[0]:.0f} to "
                  f"{trend_apps.iloc[-1]:.0f} (2021 to 2025) while recruiter minutes per "
                  f"application fell from {trend_min.iloc[0]:.2f} to {trend_min.iloc[-1]:.2f} and "
-                 f"days to fill rose from {trend_fill.iloc[0]:.1f} to {trend_fill.iloc[-1]:.1f}. "
+                 f"days to fill rose from {trend_fill.iloc[0]:.1f} to {trend_fill.iloc[-1]:.1f} "
+                 f"(all centers pooled, E10e; by ATS, E10b). "
                  f"More applications per opening is associated with fewer recruiter minutes per "
                  f"application ({min_est:.4f} minutes per additional applicant, 95% CI "
-                 f"[{min_ci[0]:.4f}, {min_ci[1]:.4f}], center+month FE) -- recruiters are "
+                 f"[{min_ci[0]:.4f}, {min_ci[1]:.4f}], center+month FE, E10f) -- recruiters are "
                  f"spreading a fixed weekly capacity across a growing queue. The new ATS itself "
                  f"draws {apps_est:.0f} more applications per center-month than legacy in the AI era "
                  f"(95% CI [{apps_ci[0]:.0f}, {apps_ci[1]:.0f}], E10d; the pre-2023 new-ATS effect is "

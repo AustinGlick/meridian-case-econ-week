@@ -14,7 +14,9 @@
 12,coaching_hours null AND censored,571,n/a
 13,coaching_hours null AND NOT censored (true missing),3590,n/a
 14,hires: ATS at start != ATS at application (use application-month ATS),530,expect ~530
-15,application-to-start lag distribution (months),"{0: np.int64(11169), 1: np.int64(31475), 2: np.int64(3609), 3: np.int64(13)}",n/a
-16,hires_obs by regime (cutoff 2023-01),"{'legacy': 19366, 'new_pre': 5920, 'new_post': 16391}",n/a
-17,flex by regime (cutoff 2023-01),"{'legacy': 14620, 'new_pre': 2346, 'new_post': 11706}",n/a
+15,application-to-start lag distribution (months),"0 mo: 11,169; 1 mo: 31,475; 2 mo: 3,609; 3 mo: 13",n/a
+16,hires_obs by regime (cutoff 2023-01),"legacy: 19,366; new_pre: 5,920; new_post: 16,391",n/a
+17,flex by regime (cutoff 2023-01),"legacy: 14,620; new_pre: 2,346; new_post: 11,706",n/a
 18,centers never migrated to new ATS,7,expect 7
+19,"hires starting in 2025 at the 9 centers that migrated in 2024 (all, incl. censored)",1698,n/a
+20,  = hires per quarter at those centers,424,n/a

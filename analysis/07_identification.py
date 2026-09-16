@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from analysis.utils import (load_frames, hires_obs, fe_ols, regime_slopes, write_table, save_fig,
+from analysis.utils import (load_frames, hires_obs, fe_ols, regime_slopes, write_table, save_fig, TABLES,
                             log_result, wild_bootstrap_p, event_window, did_table, REGIMES4, PALETTE,
                             HIRE_CTRL, FLEX_CTRL, ESSAY_BINS, ESSAY_BIN_LABELS, AI_ERA_CUTOFF,
                             EVENT_WINDOW, HIRE_CONTROLS, DID_TERMS_HIRES, matched_legacy_gaps,
@@ -259,11 +259,17 @@ def main() -> None:
     leg_desc = mig[mig["migration_wave"] == "not migrated"]
     band_lo, band_hi = leg_desc["size_index"].min(), leg_desc["size_index"].max()
     regions = ", ".join(sorted(leg_desc["region"].unique()))
-    tab = gaps.set_index(["approach", "outcome"])[
-        ["unmatched_gap", "unmatched_ci_low", "unmatched_ci_high", "matched_gap", "matched_ci_low",
-         "matched_ci_high", "wild_bootstrap_p_299", "n_legacy_centers", "n_legacy_rows",
-         "n_comparison_centers_unmatched", "n_comparison_rows_unmatched",
-         "n_comparison_centers_matched", "n_comparison_rows_matched", "comparison_centers"]]
+    # printed table: one row per approach x outcome, flat index, the columns a reader needs;
+    # the full frame (unmatched CIs, legacy n, matched center lists) goes to the CSV next to it
+    tab = gaps.set_index("approach")[
+        ["outcome", "unmatched_gap", "matched_gap", "matched_ci_low", "matched_ci_high",
+         "wild_bootstrap_p_299", "n_comparison_centers_matched", "n_comparison_rows_matched"]]
+    tab = tab.rename(columns={"wild_bootstrap_p_299": "wild_boot_p",
+                              "n_comparison_centers_matched": "matched_centers",
+                              "n_comparison_rows_matched": "matched_rows"})
+    gaps.to_csv(TABLES / "E15f_matched_comparison_full.csv", index=False)
+    matched_lists = "; ".join(f"{a}: {c}" for a, c in
+                              gaps[gaps["outcome"] == "retained_6mo"][["approach", "comparison_centers"]].values)
     write_table("E15f", tab.round(4),
                 "Matched comparison: legacy-minus-new-ATS gaps in 2024-25, unmatched vs matched on size and region",
                 sample_line=(f"Legacy = {int(gaps['n_legacy_centers'].iloc[0])} never-migrated centers, "
@@ -280,7 +286,8 @@ def main() -> None:
                        f"replacement to its 1 or 2 nearest new-ATS centers on size_index within the same region, "
                        f"comparison centers weighted by times matched, spread evenly over their hires; ps = logit "
                        f"P(legacy | size_index, region) on the centers in legacy regions, comparison weight "
-                       f"p/(1-p). comparison_centers lists center(weight). With 12-26 clusters the cluster-robust "
+                       f"p/(1-p). Matched comparison centers, as center(weight): {matched_lists}. Unmatched 95% CIs, "
+                       f"legacy n and per-approach detail are in E15f_matched_comparison_full.csv. With 12-26 clusters the cluster-robust "
                        f"CIs are unreliable; the wild-cluster bootstrap p (299 Rademacher draws) is reported for "
                        f"the unweighted band retention gap only. The H1 DiD bound (E01b) is {did_gain:.4f}. "
                        f"The '(b, matched)' row in E19 uses the {MATCH_HEADLINE} retention and reopen gaps."),
@@ -335,7 +342,7 @@ def main() -> None:
     g_ret = gaps[gaps["outcome"] == "retained_6mo"].set_index("approach")
     g_reo = gaps[gaps["outcome"] == "reopen_rate_6mo_pct"].set_index("approach")
     g_dtf = gaps[gaps["outcome"] == "days_to_fill"].set_index("approach")
-    print(tab.drop(columns=["comparison_centers"]).round(4).to_string())
+    print(tab.round(4).to_string())
     print(f"wild bootstrap p, band retention gap: {p_wb_band:.3f}; DiD bound {did_gain:.4f}")
 
     print(f"Pre-2023 essay slope, pilot: {pilot_pre[0]:.5f} (se {pilot_pre[1]:.5f}, n={pilot_pre[2]})")
