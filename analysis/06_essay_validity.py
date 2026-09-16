@@ -117,22 +117,22 @@ def main() -> None:
     g = h.groupby(["essay_bin", "regime4"], observed=True)["retained_6mo"].agg(
         ["mean", "count", "std"]).reset_index()
     g["se"] = g["std"] / np.sqrt(g["count"])
-    fig, axes = plt.subplots(1, 4, figsize=(16, 4.8), sharey=True)
+    fig, axes = plt.subplots(1, 4, figsize=(11, 5.4), sharey=True)
     for ax, regime in zip(axes, REGIMES4):
         sub = g[(g["regime4"] == regime) & (g["count"] >= 100)]
         ax.bar(sub["essay_bin"].astype(str), sub["mean"], yerr=1.96 * sub["se"], capsize=4,
               color=PALETTE[regime], width=0.7)
-        ax.set_title(REGIME4_LABELS[regime], fontsize=10)
+        ax.set_title(REGIME4_LABELS[regime], fontsize=11)
         ax.set_xlabel("Essay score bin (0-30)")
-        ax.set_ylim(0.70, 0.95)
+        ax.set_ylim(0.70, 0.96)
         for i, row in sub.reset_index().iterrows():
             ax.text(i, row["mean"] + 1.96 * row["se"] + 0.004, f"{row['mean']:.3f}\nn={int(row['count']):,}",
-                    ha="center", fontsize=7)
+                    ha="center", fontsize=8.5)
     axes[0].set_ylabel("Six-month retention rate (share of hires)")
-    fig.suptitle("E12. A top-bin essay (24-30) used to predict better retention than an 18-23 essay; "
+    fig.suptitle("E12. A top-bin essay (24-30) used to predict better retention than an 18-23 essay;\n"
                  "on the new ATS after 2023 it predicts slightly worse retention",
-                 fontsize=11)
-    fig.tight_layout(rect=[0, 0, 1, 0.92])
+                 fontsize=12.5)
+    fig.tight_layout(rect=[0, 0, 1, 0.91])
     save_fig(fig, "E12", "retention_by_essay_bin_regime",
             sample_line=f"{len(h):,} permanent hires with an observed six-month outcome, binned by "
                         f"essay score within four ATS x era cells; bins with under 100 hires not shown. "
@@ -175,12 +175,12 @@ def main() -> None:
               label=lab, capsize=4, color=col)
     ax.axhline(0, color="black", linewidth=0.8)
     ax.set_xticks(x)
-    ax.set_xticklabels([REGIME4_LABELS[r] for r in REGIMES4], fontsize=9)
+    ax.set_xticklabels([REGIME4_LABELS[r] for r in REGIMES4], fontsize=10.5)
     ax.set_ylabel("Essay-score slope on six-month retention (per point, 95% CI)")
     ax.set_title("E13. Essays written in 15+ minutes still predict retention everywhere;\n"
-                 "fast essays predict nothing on the legacy ATS after 2023 and predict WORSE "
-                 "retention on the new ATS after 2023", fontsize=11)
-    ax.legend()
+                 "fast essays predict nothing on the legacy ATS after 2023\n"
+                 "and predict WORSE retention on the new ATS after 2023", fontsize=12.5)
+    ax.legend(title="Time in situational section")
     save_fig(fig, "E13", "essay_slope_by_speed_regime",
             sample_line=f"{len(h):,} hires with an observed six-month outcome, split by ATS x era "
                         f"cell and by time spent in the situational section.",

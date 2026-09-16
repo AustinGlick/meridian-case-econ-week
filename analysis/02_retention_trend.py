@@ -51,9 +51,9 @@ def main() -> None:
     cq = cutoff_quarter()
     if cq in xl:
         ax.axvline(xl.index(cq), color="grey", linestyle="--", linewidth=1)
-        ax.text(xl.index(cq), ax.get_ylim()[1], f" AI-era cutoff ({AI_ERA_CUTOFF})", fontsize=8, va="top")
+        ax.text(xl.index(cq), ax.get_ylim()[1], f" AI-era cutoff ({AI_ERA_CUTOFF})", fontsize=9.5, va="top")
     ax.set_xlabel("Hire start quarter")
-    ax.set_ylabel("Six-month retention rate (share of hires still employed)")
+    ax.set_ylabel("Six-month retention rate\n(share of hires still employed)")
     ax.set_title("E01. Six-month retention falls after 2023, and falls more on the new ATS")
     ax.legend()
     save_fig(fig, "E01", "retention_by_quarter_ats",
@@ -74,7 +74,7 @@ def main() -> None:
         ax.fill_between(x, sub["mean"] - 1.96 * sub["se"], sub["mean"] + 1.96 * sub["se"], alpha=0.15, color=PALETTE[ats])
     ax.set_xticks(xt[::2]); ax.set_xticklabels([xl[i] for i in xt[::2]], rotation=45, ha="right")
     ax.set_xlabel("Hire start quarter")
-    ax.set_ylabel("Six-month reopen rate (% of claims closed that are later reopened)")
+    ax.set_ylabel("Six-month reopen rate\n(% of claims closed that are later reopened)")
     ax.set_title("E02. Reopen rates rise after 2023, and rise more on the new ATS")
     ax.legend()
     save_fig(fig, "E02", "reopen_by_quarter_ats",
@@ -115,7 +115,7 @@ def main() -> None:
     h["sep_reason"] = h["separation_reason"].fillna("retained_or_censored_na")
     comp = pd.crosstab(h["year"], h["sep_reason"], normalize="index")
     reasons = [c for c in ["voluntary", "performance", "attendance"] if c in comp.columns]
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+    fig, axes = plt.subplots(1, 2, figsize=(11, 5.2), sharey=True)
     for ax, ats in zip(axes, ["legacy", "new"]):
         sub = h[h["ats_at_application"] == ats]
         c2 = pd.crosstab(sub["year"], sub["sep_reason"], normalize="index")
@@ -128,6 +128,7 @@ def main() -> None:
     axes[0].set_ylabel("Share of hires separating within six months (by reason)")
     axes[0].legend()
     fig.suptitle("E03. Separations rise after 2023 in every reason category, more on the new ATS")
+    fig.tight_layout(rect=[0, 0, 1, 0.94])
     save_fig(fig, "E03", "separation_reason_by_year",
             sample_line=f"{len(h):,} permanent hires with an observed six-month outcome, by "
                         f"start year (2025 partial: only Jan-Jun starts have an outcome).",
@@ -164,10 +165,10 @@ def main() -> None:
             continue
         ax.errorbar(sub["year"], sub["mean"], yerr=1.96 * sub["se"], marker="o", capsize=3, label=w, color=PALETTE[w], linewidth=2)
     ax.set_xlabel("Hire start year")
-    ax.set_ylabel("Six-month retention rate")
-    ax.set_title("E04. The 2021 pilot centers -- the largest, best-resourced centers -- show the "
-                "steepest post-2023 decline")
-    ax.legend(title="Migration wave", fontsize=8)
+    ax.set_ylabel("Six-month retention rate (share of hires)")
+    ax.set_title("E04. The 2021 pilot centers -- the largest, best-resourced centers --\n"
+                "show the steepest post-2023 decline")
+    ax.legend(title="Migration wave", fontsize=9.5)
     save_fig(fig, "E04", "retention_by_wave_year",
             sample_line=f"{len(hjo):,} permanent hires with an observed six-month outcome, "
                         f"grouped by their center's ATS migration wave.",
@@ -179,20 +180,20 @@ def main() -> None:
     mig["size_tercile"] = pd.qcut(mig["size_index"], 3, labels=["small", "medium", "large"])
     hjo2 = hjo.merge(mig[["center_id", "size_tercile"]], on="center_id", how="left")
     gs = hjo2.groupby(["year", "wave", "size_tercile"], observed=True)["retained_6mo"].mean().reset_index()
-    fig, axes = plt.subplots(1, 3, figsize=(14, 4.5), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(11, 4.6), sharey=True)
     for ax, tercile in zip(axes, ["small", "medium", "large"]):
         sub = gs[gs["size_tercile"] == tercile]
         for w in wave_order:
             s2 = sub[sub["wave"] == w].sort_values("year")
             if len(s2) > 1:
                 ax.plot(s2["year"], s2["retained_6mo"], marker="o", label=w, color=PALETTE[w], linewidth=2)
-        ax.set_title(f"{tercile.capitalize()} centers (by headcount tercile)")
-        ax.set_xlabel("Start year")
-    axes[0].set_ylabel("Six-month retention rate")
-    axes[0].legend(fontsize=7)
+        ax.set_title(f"{tercile.capitalize()} centers (headcount tercile)")
+        ax.set_xlabel("Hire start year")
+    axes[0].set_ylabel("Six-month retention rate (share of hires)")
+    axes[1].legend(title="Migration wave", fontsize=9, loc="lower left")
     fig.suptitle("E05. The pilot-wave decline shows up within every size tercile -- size alone "
                 "does not explain it")
-    fig.tight_layout(rect=[0, 0, 1, 0.95])
+    fig.tight_layout(rect=[0, 0, 1, 0.94])
     save_fig(fig, "E05", "retention_by_wave_size_tercile",
             sample_line=f"{len(hjo2):,} permanent hires, split into center-headcount terciles.",
             source="analysis/02_retention_trend.py")

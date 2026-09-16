@@ -1,4 +1,5 @@
 ,r_assumed,label,breakeven_extra_days_excl_quality,breakeven_extra_days_incl_quality,option_c_recovery_share_needed_to_break_even_excl_quality,at_extra_recruiter_cost_per_hire_$,at_extra_days_to_fill
 0,0.843,DiD gain only,2.746,9.82,0.89,204.101,3.0
 1,0.857,legacy 2024-25 observed,4.429,11.622,,,
-2,0.882,pre-AI level,7.38,14.783,,,
+2,0.866,"legacy gap matched on size and region (nn2, E15f)",5.459,12.725,,,
+3,0.882,pre-AI level,7.38,14.783,,,
