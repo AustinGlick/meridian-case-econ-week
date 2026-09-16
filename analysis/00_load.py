@@ -69,17 +69,26 @@ def main() -> None:
     start_m = pd.PeriodIndex(hj["start_month"], freq="M")
     lag = pd.Series([sm.ordinal - am.ordinal for sm, am in zip(start_m, app_m)])
     lag_counts = lag.value_counts().sort_index()
-    checks.append(("application-to-start lag distribution (months)", dict(lag_counts), "n/a"))
+    lag_str = "; ".join(f"{int(k)} mo: {int(v):,}" for k, v in lag_counts.items())
+    checks.append(("application-to-start lag distribution (months)", lag_str, "n/a"))
 
     # --- regime cell sizes (fixes the AI-era cutoff sample sizes used everywhere) ---
     regime_hires = hires_obs(hj)["regime"].value_counts().reindex(["legacy", "new_pre", "new_post"])
     regime_flex = fj["regime"].value_counts().reindex(["legacy", "new_pre", "new_post"])
-    checks.append((f"hires_obs by regime (cutoff {AI_ERA_CUTOFF})", regime_hires.to_dict(), "n/a"))
-    checks.append((f"flex by regime (cutoff {AI_ERA_CUTOFF})", regime_flex.to_dict(), "n/a"))
+    fmt_regime = lambda s: "; ".join(f"{k}: {int(v):,}" for k, v in s.items())
+    checks.append((f"hires_obs by regime (cutoff {AI_ERA_CUTOFF})", fmt_regime(regime_hires), "n/a"))
+    checks.append((f"flex by regime (cutoff {AI_ERA_CUTOFF})", fmt_regime(regime_flex), "n/a"))
 
     # --- never-migrated centers -------------------------------------------------
     n_never = mig["migration_month"].isna().sum()
     checks.append(("centers never migrated to new ATS", int(n_never), "expect 7"))
+
+    # --- pilot arithmetic: hires per quarter at the 2024-rollout centers (the proposed pilot sites)
+    wave24 = mig.loc[mig["migration_wave"] == "2024 rollout", "center_id"]
+    h24 = hj[hj["center_id"].isin(wave24) & (hj["start_month"] >= "2025-01")]
+    checks.append(("hires starting in 2025 at the 9 centers that migrated in 2024 (all, incl. censored)",
+                   int(len(h24)), "n/a"))
+    checks.append(("  = hires per quarter at those centers", int(round(len(h24) / 4)), "n/a"))
 
     # --- print + table -----------------------------------------------------------
     print(f"{'check':<62}{'value':>12}  expected")

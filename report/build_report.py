@@ -324,6 +324,20 @@ def md_to_typst(md: str, avail_pt: float = PORTRAIT_PT) -> str:
             out.append("#v(0.5em)\n")
             i += 1
             continue
+        # inline figure in the narrative: ![caption](outputs/exhibits/E13_x.png){width=80%}
+        m = re.match(r"^!\[(.*?)\]\(([^)]+)\)(?:\{width=(\d+)%\})?$", stripped)
+        if m:
+            flush_para()
+            caption, rel, width = m.group(1), m.group(2), m.group(3) or "100"
+            png = (ROOT / rel).resolve()
+            if not png.exists():
+                raise SystemExit(f"narrative image not found: {rel}")
+            img = "/" + png.relative_to(ROOT).as_posix()
+            cap = f"#v(0.2em)#text(size: 8.5pt)[{inline(caption)}]" if caption else ""
+            out.append(f"#block(breakable: false)[#align(center)[#image({typst_str(img)}, "
+                       f"width: {width}%){cap}]]\n")
+            i += 1
+            continue
         if stripped.startswith("|") and i + 1 < len(lines) and is_sep_row(lines[i + 1]):
             flush_para()
             j = i

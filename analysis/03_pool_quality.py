@@ -143,7 +143,7 @@ def main() -> None:
         ax.set_ylabel(obj_labels[col][1], fontsize=10)
         ax.set_xlabel("Application year")
     axes[0, 0].legend(fontsize=9.5)
-    fig.suptitle("E08. Objective applicant attributes are flat over time --\n"
+    fig.suptitle("E08. Objective applicant attributes drift slightly DOWN on the new ATS after 2023 --\n"
                 "the pool did not objectively improve while essay scores rose")
     fig.tight_layout(rect=[0, 0, 1, 0.93])
     save_fig(fig, "E08", "objective_attributes_over_time",
@@ -158,7 +158,8 @@ def main() -> None:
         t_o = did_table(r_o); t_o["outcome"] = col
         obj_rows.append(t_o)
     tab_obj = pd.concat(obj_rows).reset_index().set_index(["outcome", "term"])
-    write_table("E08b", tab_obj.round(4), "Objective applicant attributes: new ATS x post-AI-era DiD",
+    tab_obj_flat = tab_obj.round(4).reset_index().set_index("outcome")
+    write_table("E08b", tab_obj_flat, "Objective applicant attributes: new ATS x post-AI-era DiD",
                sample_line=f"n={len(apps):,} reviewed applications, 40 center clusters.",
                notes="Each outcome regressed on treated_app + treated_app:post_ai with center and "
                      "application-month FE, cluster center. Compare with the essay-score DiD in E06c.",
@@ -246,8 +247,10 @@ def main() -> None:
                  f"points (95% CI [{inflation_ci[0]:.2f}, {inflation_ci[1]:.2f}], the DiD "
                  f"interaction) once AI writing became available -- an AI-era gap of "
                  f"{infl_gap:.2f} points [{infl_gap_ci[0]:.2f}, {infl_gap_ci[1]:.2f}] over "
-                 f"legacy (E06c). Objective attributes show no comparable shift (E08/E08b: the "
-                 f"resume-score DiD is {resume_did:+.4f} standard deviations), and flex-placement "
+                 f"legacy (E06c). Objective attributes move the OTHER way: the resume-score DiD is "
+                 f"{resume_did:+.4f} standard deviations and license, prior claims, referral and "
+                 f"employment shares all fall by 1 to 3 points on the new ATS in the AI era "
+                 f"(E08/E08b), so the pool did not get better while scores rose; flex-placement "
                  f"reopen rates -- the pool NOT selected on the essay -- do not move by ATS "
                  f"regime (E09/E09b: DiD {flex_did:+.3f} points, 95% CI [{flex_ci[0]:.3f}, "
                  f"{flex_ci[1]:.3f}]). The legacy system is not immune: its mean score drifts "
