@@ -133,11 +133,12 @@ def main() -> None:
     fmt = lambda df: df.assign(**{c: df[c].round(0) for c in money if c in df},  # noqa: E731
                                r=df["r"].round(4), days_to_fill=df["days_to_fill"].round(2),
                                reopen_pct=df["reopen_pct"].round(3))
-    write_table("E17", fmt(scen),
+    write_table("E17", fmt(scen).drop(columns=["C_sep", "C_policy"]),
                "Cost per retained employee: status quo vs counterfactuals where the essay still screened",
                sample_line="Hires with an observed six-month outcome, by scenario; all costed at 2025 "
                            "average rates (E17a). CPR = cost per retained employee, $.",
-               notes="A = the seven never-migrated centers (different, smaller centers). A' = the "
+               notes="C_sep = $2,540 per exit and C_policy = $0 in every row (not printed). "
+                     "A = the seven never-migrated centers (different, smaller centers). A' = the "
                      "status-quo cohort with retention raised by the H1 DiD gain (E01b) and reopen "
                      "set to the legacy level. B = the same new-ATS centers before AI writing. "
                      "C_hire excludes recruiter screening time (E17b).",
@@ -282,13 +283,16 @@ def main() -> None:
     for q in ("excl", "incl"):
         opts[f"delta_vs_status_quo_{q}_quality"] = opts[f"CPR_{q}_quality"] - opts.loc[0, f"CPR_{q}_quality"]
         opts[f"annual_delta_{q}_quality_$M"] = opts[f"delta_vs_status_quo_{q}_quality"] * annual_retained / 1e6
-    write_table("E19", fmt(opts).round({"annual_delta_excl_quality_$M": 2, "annual_delta_incl_quality_$M": 2}),
+    write_table("E19", fmt(opts).round({"annual_delta_excl_quality_$M": 2, "annual_delta_incl_quality_$M": 2})
+                       .drop(columns=["C_sep", "C_policy", "annual_delta_incl_quality_$M"]),
                "Cost per retained employee by option, vs status quo",
                sample_line=f"Status quo, (a) and (b) are observed cohorts; (a'), (b low/high/matched), (c) and "
                            f"(d) rest on the stated assumptions in the row label. Annual figures use "
                            f"{annual_retained:,.0f} retained seats a year ({annual_hires:,} new-ATS "
                            f"hires x r, 2025 H1 pace x 2).",
-               notes="Negative delta = cheaper than status quo. (c) and (d) are not estimated from "
+               notes="Negative delta = cheaper than status quo. Not printed: C_sep = $2,540 per exit in "
+                     "every row; C_policy = $0 except (d), $500; the annual delta including quality is "
+                     "the per-employee delta x 6,830. (c) and (d) are not estimated from "
                      "Meridian data because Meridian has not run them; their retention effects are "
                      "assumptions and E20 shows how far they can move before the ranking changes.",
                source="analysis/08_cost_worksheet.py")

@@ -76,3 +76,9 @@
 - Spec: Worksheet over a grid of r and extra days to fill; break-even days = saving / (vacancy_cost_per_day / r); option (c) break-even recovery by grid search
 - Sample: 2,400 center-months for 2025 rates; sensitivity exercise, not a new estimation sample
 - Verdict: supported -- the recommendation for (b) survives every r bound at zero extra days and survives the legacy-observed r up to about a week of extra vacancy per hire; the three 'recommend something else if' triggers are stated.
+
+## H13 -- reweighting the screen away from the essay, judged among hires  (E21)
+- Finding: Among the 16,391 new-ATS AI-era hires, the top half within center under the current formula retains 0.826; under the same formula with the essay weight set to zero the top half retains 0.867. The 3,699 hires the essay-free ranking moves INTO the top half retain 0.864 (reopen 8.07%) against 0.772 (reopen 9.55%) for the ones it moves OUT. Doubling the license and referral weights on top changes little (0.869). This is a lower-bound check: outcomes exist only for people the current formula selected, so the full effect of reweighting on who gets hired cannot be estimated from this data, and it is not costed in E19.
+- Spec: recruiter_screen_score ~ six screen inputs + center FE + application-month FE on new_post applications gives the weights; hires re-ranked within center by the fitted score with the essay weight zeroed (and, separately, license/referral doubled); mean outcomes by group
+- Sample: 16,391 new-ATS hires applying 2023-01 or later with an observed outcome; 255,535 reviewed applications for the weights
+- Verdict: supported as a free first step -- among people already hired, dropping the essay from the ranking favors hires who retain about 9 points better; it does not replace option (b), which restores the essay's information rather than discarding it, and its effect on applicants never hired is unobservable.

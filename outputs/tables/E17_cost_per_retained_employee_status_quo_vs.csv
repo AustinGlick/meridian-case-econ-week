@@ -1,6 +1,6 @@
-,scenario,n,r,days_to_fill,reopen_pct,C_hire,C_sep,C_policy,C_quality,CPR_excl_quality,CPR_incl_quality
-0,"Status quo: new ATS, hires starting 2024-25 (observed)",11440.0,0.8195,28.93,8.918,18699.0,2540.0,0.0,17531.0,23377.0,40908.0
-1,"Status quo (alt): new ATS, all AI-era hires 2023-25 (observed)",16391.0,0.8344,28.93,8.592,18699.0,2540.0,0.0,16888.0,22916.0,39804.0
-2,"Counterfactual A: legacy centers, hires starting 2024-25 (observed)",2487.0,0.8569,27.26,7.985,18334.0,2540.0,0.0,15695.0,21821.0,37516.0
-3,"Counterfactual A': status quo + DiD retention gain, status-quo days to fill",,0.8427,28.93,7.985,18699.0,2540.0,0.0,15695.0,22665.0,38360.0
-4,"Counterfactual B: new ATS before the AI era (2021-22), costed at 2025 rates",5920.0,0.8818,28.93,7.645,18699.0,2540.0,0.0,15027.0,21547.0,36574.0
+,scenario,n,r,days_to_fill,reopen_pct,C_hire,C_quality,CPR_excl_quality,CPR_incl_quality
+0,"Status quo: new ATS, hires starting 2024-25 (observed)",11440.0,0.8195,28.93,8.918,18699.0,17531.0,23377.0,40908.0
+1,"Status quo (alt): new ATS, all AI-era hires 2023-25 (observed)",16391.0,0.8344,28.93,8.592,18699.0,16888.0,22916.0,39804.0
+2,"Counterfactual A: legacy centers, hires starting 2024-25 (observed)",2487.0,0.8569,27.26,7.985,18334.0,15695.0,21821.0,37516.0
+3,"Counterfactual A': status quo + DiD retention gain, status-quo days to fill",,0.8427,28.93,7.985,18699.0,15695.0,22665.0,38360.0
+4,"Counterfactual B: new ATS before the AI era (2021-22), costed at 2025 rates",5920.0,0.8818,28.93,7.645,18699.0,15027.0,21547.0,36574.0

@@ -23,7 +23,7 @@ What the build does
 - For each id: places `outputs/exhibits/E##x_*.png` (fit to page width, aspect kept, capped
   to page height) and its table `outputs/tables/E##x_*.md` underneath; a table-only exhibit
   is placed as a table. Markdown tables are converted to Typst tables; wide tables get a
-  smaller font and, past ten columns, a landscape page.
+  smaller font (down to 6.5pt) and a wrapped label column; every page stays portrait.
 - Writes the assembled Typst source to `build/report.typ` (gitignored) and the PDF to
   `report/Meridian_Round1.pdf` (committed, so teammates can read it without building).
 - Prints a build summary: narrative pages, appendix pages, exhibits placed, exhibits missing.
@@ -53,7 +53,8 @@ PAGE_HEIGHT_IN = 11.0 - 2.0
 MAX_FIG_HEIGHT_IN = 6.2          # leaves room for the heading and a few table rows
 PORTRAIT_PT = PAGE_WIDTH_IN * 72                 # text width, portrait
 LANDSCAPE_PT = (11.0 - 1.5) * 72                 # text width, landscape, 0.75in margins
-LANDSCAPE_MIN_COLS = 11
+LANDSCAPE_MIN_COLS = 999   # landscape disabled: every page keeps the portrait aspect ratio;
+                           # wide tables shrink to 6.5pt and wrap their label column instead
 
 RUNNING_HEADER = "Meridian Casualty: Hiring Is Broken. Can You Fix It?"
 RUNNING_HEADER_RIGHT = "Econ Week 2026, Round 1"

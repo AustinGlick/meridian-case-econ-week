@@ -105,6 +105,76 @@ def main() -> None:
                      "its inputs, not a judgment.",
                source="analysis/05_screen_components.py")
 
+    # --- E21: what reweighting the screen away from the essay does, judged among hires -----
+    # Outcomes exist only for people the current formula selected, so this is a lower-bound
+    # check, not an estimate of the policy: re-rank the new-ATS AI-era hires under alternative
+    # weights and ask whether the hires that move into the top half retain better.
+    SCREEN_INPUTS = ["essay_rubric_score", "resume_score", "has_adjuster_license",
+                     "prior_claims_years", "referral", "currently_employed"]
+    apps_np = d["applications"][d["applications"]["regime4"] == "new_post"]
+    res_w = fe_ols(apps_np, "recruiter_screen_score", SCREEN_INPUTS, fe=["center_id", "application_month"])
+    w_cur = res_w.params[SCREEN_INPUTS].copy()
+    w_drop = w_cur.copy(); w_drop["essay_rubric_score"] = 0.0
+    w_shift = w_drop.copy()
+    w_shift["has_adjuster_license"] *= 2; w_shift["referral"] *= 2
+    hn = h[h["regime4"] == "new_post"].copy()
+    score = lambda w: sum(w[c] * hn[c] for c in SCREEN_INPUTS)  # noqa: E731
+    top = lambda s: s.groupby(hn["center_id"]).rank(pct=True) > 0.5  # noqa: E731
+    variants = {"current formula (essay weight 0.25)": w_cur,
+                "essay weight set to 0": w_drop,
+                "essay to 0, license and referral weights doubled": w_shift}
+    tops = {k: top(score(w)) for k, w in variants.items()}
+    rw_rows = []
+    def add_row(label, mask):
+        rw_rows.append({"ranking": label, "n": int(mask.sum()),
+                        "retention": hn.loc[mask, "retained_6mo"].mean(),
+                        "reopen_pct": hn.loc[mask, "reopen_rate_6mo_pct"].mean()})
+    add_row("all new-ATS AI-era hires", pd.Series(True, index=hn.index))
+    base = tops["current formula (essay weight 0.25)"]
+    for k, t in tops.items():
+        add_row(f"top half within center under: {k}", t)
+    for k in list(variants)[1:]:
+        t = tops[k]
+        add_row(f"moved INTO the top half by: {k}", t & ~base)
+        add_row(f"moved OUT of the top half by: {k}", base & ~t)
+    rw_df = pd.DataFrame(rw_rows).set_index("ranking")
+    write_table("E21", rw_df.round(4),
+               "Re-ranking the new-ATS AI-era hires under a screen formula that drops the essay",
+               sample_line=f"{len(hn):,} new-ATS hires who applied {AI_ERA_CUTOFF} or later with an observed "
+                           f"six-month outcome; weights from recruiter_screen_score ~ inputs + center + "
+                           f"month FE on {res_w.sample_n:,} reviewed applications in the same cell "
+                           f"(R-squared {res_w.rsquared:.2f}).",
+               notes="A lower-bound check, not a policy estimate: outcomes are unobserved for applicants "
+                     "the current formula rejected, so this only asks whether, among people already hired, "
+                     "the ones a reweighted formula would have ranked higher retain better than the ones it "
+                     "would have dropped. 'Top half' is within center. Doubling the license and referral "
+                     "weights is an illustrative reallocation, not a fitted one.",
+               source="analysis/05_screen_components.py")
+    rw = rw_df
+    print(rw.round(4).to_string())
+    log_result(
+        "H13 -- reweighting the screen away from the essay, judged among hires", "E21",
+        finding=(f"Among the {len(hn):,} new-ATS AI-era hires, the top half within center under the "
+                 f"current formula retains {rw.iloc[1]['retention']:.3f}; under the same formula with the "
+                 f"essay weight set to zero the top half retains {rw.iloc[2]['retention']:.3f}. The "
+                 f"{int(rw.iloc[4]['n']):,} hires the essay-free ranking moves INTO the top half retain "
+                 f"{rw.iloc[4]['retention']:.3f} (reopen {rw.iloc[4]['reopen_pct']:.2f}%) against "
+                 f"{rw.iloc[5]['retention']:.3f} (reopen {rw.iloc[5]['reopen_pct']:.2f}%) for the ones it "
+                 f"moves OUT. Doubling the license and referral weights on top changes little "
+                 f"({rw.iloc[3]['retention']:.3f}). This is a lower-bound check: outcomes exist only for "
+                 f"people the current formula selected, so the full effect of reweighting on who gets "
+                 f"hired cannot be estimated from this data, and it is not costed in E19."),
+        spec="recruiter_screen_score ~ six screen inputs + center FE + application-month FE on new_post "
+             "applications gives the weights; hires re-ranked within center by the fitted score with the "
+             "essay weight zeroed (and, separately, license/referral doubled); mean outcomes by group",
+        sample=f"{len(hn):,} new-ATS hires applying {AI_ERA_CUTOFF} or later with an observed outcome; "
+               f"{res_w.sample_n:,} reviewed applications for the weights",
+        verdict="supported as a free first step -- among people already hired, dropping the essay from "
+                "the ranking favors hires who retain about 9 points better; it does not replace option (b), "
+                "which restores the essay's information rather than discarding it, and its effect on "
+                "applicants never hired is unobservable."
+    )
+
     print(coef_df.round(4).to_string(index=False))
     print(screen_df.round(4).to_string(index=False))
 
