@@ -28,7 +28,8 @@ import pandas as pd
 
 from analysis.utils import (load_frames, hires_obs, fe_ols, regime_slopes, write_table, save_fig,
                             log_result, event_window, REGIMES4, REGIME4_LABELS, PALETTE,
-                            HIRE_CTRL, FLEX_CTRL, ESSAY_BINS, ESSAY_BIN_LABELS, EVENT_WINDOW)
+                            HIRE_CTRL, FLEX_CTRL, ESSAY_BINS, ESSAY_BIN_LABELS, EVENT_WINDOW,
+                            AI_ERA_CUTOFF, ROOT)
 
 
 def slopes4(df, y, ctrl, fe):
@@ -143,6 +144,46 @@ def main() -> None:
     # ============================================================================
     # H7 -- mechanism: time spent in the essay section (with cell main effects)
     # ============================================================================
+    # ============================================================================
+    # Robustness: the post-2023 cells under alternative AI-era cutoffs (E06b finds a ramp,
+    # not a jump, so the headline should not hinge on the configured month)
+    # ============================================================================
+    def with_cutoff(df, cutoff):
+        df = df.copy()
+        post = (df["application_month"] >= cutoff).astype(int)
+        r4 = np.where(df["treated_app"] == 1, "new", "legacy")
+        r4 = np.char.add(r4.astype(str), np.where(post == 1, "_post", "_pre"))
+        df["regime4"] = pd.Categorical(r4, categories=REGIMES4)
+        return df
+
+    def by_regime(tab):
+        return tab.set_index("regime") if "regime" in tab.columns else tab
+
+    rob = []
+    for cutoff in ["2022-07", AI_ERA_CUTOFF, "2023-07"]:   # 2024-01 leaves the flex legacy_post cell too thin for its FE
+        _, sh = slopes4(with_cutoff(h, cutoff), "retained_6mo", HIRE_CTRL, ["center_id", "start_month"])
+        _, sf = slopes4(with_cutoff(flex, cutoff), "reopen_rate_pct", FLEX_CTRL,
+                        ["center_id", "placement_month"])
+        sh, sf = by_regime(sh), by_regime(sf)
+        for cell in ("legacy_post", "new_post"):
+            rob.append({"cutoff": cutoff, "cell": cell,
+                        "hires_retention_slope": sh.loc[cell, "estimate"],
+                        "hires_ci_low": sh.loc[cell, "ci_low"], "hires_ci_high": sh.loc[cell, "ci_high"],
+                        "hires_n": int(sh.loc[cell, "n_cell"]),
+                        "flex_reopen_slope": sf.loc[cell, "estimate"],
+                        "flex_ci_low": sf.loc[cell, "ci_low"], "flex_ci_high": sf.loc[cell, "ci_high"],
+                        "flex_n": int(sf.loc[cell, "n_cell"])})
+    rob_df = pd.DataFrame(rob).set_index("cutoff")
+    write_table("E12f", rob_df.round(4),
+               "Essay slope in the post-cutoff cells under alternative AI-era cutoffs",
+               sample_line="Hires with an observed outcome (retention slope) and flex placements (reopen "
+                           "slope); the four-cell regime is rebuilt at each cutoff month.",
+               notes=f"Same specification as E12b (hires) and E12d (flex). The configured cutoff is "
+                     f"{AI_ERA_CUTOFF}; E06b's grid search peaks at 2023-12 because the score rise is a ramp. "
+                     f"If the new_post slope stays near zero on hires and well above the legacy_post slope on "
+                     f"flex at every cutoff, the conclusion does not depend on the month chosen.",
+               source="analysis/06_essay_validity.py")
+
     h["fast15"] = h["fast_essay15"]      # definition of record lives in utils.add_regime
     res_mech = fe_ols(h, "retained_6mo",
                       ["essay_rubric_score:C(regime4):C(fast15)", "C(regime4)*C(fast15)"],
@@ -185,6 +226,28 @@ def main() -> None:
             sample_line=f"{len(h):,} hires with an observed six-month outcome, split by ATS x era "
                         f"cell and by time spent in the situational section.",
             source="analysis/06_essay_validity.py")
+    plt.close(fig)
+
+    # inline version of E13 for the narrative page: same numbers, bigger type, points not shares
+    fig, ax = plt.subplots(figsize=(6.5, 3.5))
+    short = {"legacy_pre": "Legacy ATS\n2021-22", "legacy_post": "Legacy ATS\n2023+",
+             "new_pre": "New ATS\n2021-22", "new_post": "New ATS\n2023+ (AI era)"}
+    for i, (fast, lab, col) in enumerate([(0, "15+ minutes in the section", "#0072B2"),
+                                          (1, "Under 15 minutes", "#E69F00")]):
+        sub = mech_df[mech_df["fast_lt_15min"] == fast].set_index("regime").reindex(REGIMES4)
+        ax.bar(x + (i - 0.5) * width, sub["estimate"] * 100, width * 0.94,
+              yerr=1.96 * sub["se"] * 100, label=lab, capsize=3, color=col)
+    ax.axhline(0, color="black", linewidth=0.8)
+    ax.set_xticks(x)
+    ax.set_xticklabels([short[r] for r in REGIMES4], fontsize=10)
+    ax.set_ylabel("Six-month retention, points per\nessay rubric point (95% CI)", fontsize=10)
+    ax.set_title("Slow essays still predict retention; fast essays on the new ATS predict worse",
+                 fontsize=10.5)
+    ax.legend(fontsize=9, loc="lower left", title="Time in situational section", title_fontsize=9)
+    ax.tick_params(axis="y", labelsize=9)
+    fig.tight_layout()
+    (ROOT / "report" / "figures").mkdir(exist_ok=True)
+    fig.savefig(ROOT / "report" / "figures" / "E13_inline.png", dpi=220)
     plt.close(fig)
 
     evm = []

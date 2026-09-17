@@ -1,0 +1,9 @@
+ranking,n,retention,reopen_pct
+all new-ATS AI-era hires,16391,0.8344,8.5917
+top half within center under: current formula (essay weight 0.25),8203,0.8262,8.6184
+top half within center under: essay weight set to 0,8203,0.8675,7.9543
+"top half within center under: essay to 0, license and referral weights doubled",8203,0.8693,7.8968
+moved INTO the top half by: essay weight set to 0,3699,0.8637,8.0723
+moved OUT of the top half by: essay weight set to 0,3699,0.7721,9.5451
+"moved INTO the top half by: essay to 0, license and referral weights doubled",3741,0.8642,8.0268
+"moved OUT of the top half by: essay to 0, license and referral weights doubled",3741,0.7696,9.6092

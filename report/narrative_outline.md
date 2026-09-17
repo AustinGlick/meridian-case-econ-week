@@ -64,6 +64,6 @@ cites. Nothing below is a number; it is the argument and the exhibit each senten
 
 ## Appendix order
 E00, E01, E01b, E02, E02b, E03, E03b, E03c, E04, E05, E06, E06b, E06c, E07, E07b, E08, E08b,
-E09, E09b, E10, E10b, E10c, E10d, E10e, E10f, E11, E11b, E11c, E12, E12b, E12c, E12d, E12e, E13, E13b,
+E09, E09b, E10, E10b, E10c, E10d, E10e, E10f, E11, E11b, E11c, E12, E12b, E12c, E12d, E12e, E12f, E13, E13b,
 E13c, E14, E15, E15b, E15c, E15d, E15e, E15f, E15g, E16, E16b, E17, E17a, E17b, E18, E18b, E19, E20,
-E20b, E20c.
+E20b, E20c, E21.
