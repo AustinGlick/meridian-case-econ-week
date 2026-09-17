@@ -335,7 +335,7 @@ def md_to_typst(md: str, avail_pt: float = PORTRAIT_PT) -> str:
                 raise SystemExit(f"narrative image not found: {rel}")
             img = "/" + png.relative_to(ROOT).as_posix()
             cap = f"#v(0.2em)#text(size: 8.5pt)[{inline(caption)}]" if caption else ""
-            out.append(f"#block(breakable: false)[#align(center)[#image({typst_str(img)}, "
+            out.append(f"#block(breakable: false, width: 100%)[#align(center)[#image({typst_str(img)}, "
                        f"width: {width}%){cap}]]\n")
             i += 1
             continue
